@@ -1,20 +1,33 @@
 package ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat
 import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuOpen
+import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.OpenWith
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.ChatBubble
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.DownloadDone
 import androidx.compose.material.icons.outlined.FlashOn
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,18 +49,44 @@ fun EntryScreen(
     uiState: MainViewModel.UiState,
     mainViewModel: MainViewModel
 ){
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    LaunchedEffect(uiState.drawerShown){
+        drawerState.apply {
+            if(uiState.drawerShown) {
+                open()
+            } else close()
+        }
+    }
+
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 drawerContentColor = MaterialTheme.colorScheme.onSurface,
             ){
-                Text(
-                    text = "CHATS",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "CHATS",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    IconButton(
+                        onClick = { mainViewModel.closeSideDrawer() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ){
+                        Icon(
+                            imageVector = Icons.Outlined.Cancel,
+                            contentDescription = null
+                        )
+                    }
+                }
+
                 HorizontalDivider()
                 NavigationDrawerItem(
                     label = { Text(text = "Drawer Item") },
@@ -57,6 +96,7 @@ fun EntryScreen(
 
             }
         },
+        drawerState = drawerState,
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -113,6 +153,24 @@ fun EntryScreen(
                     onClick = { mainViewModel.showModelListDialog() }
                 )
             }
+
+            AnimatedVisibility(
+                visible = !uiState.drawerShown,
+                modifier = Modifier.align(Alignment.TopStart),
+                exit = scaleOut(),
+                enter = scaleIn()
+            ){
+                IconButton(
+                    onClick = { mainViewModel.showSideDrawer() },
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = null
+                    )
+                }
+            }
+
         }
     }
 
