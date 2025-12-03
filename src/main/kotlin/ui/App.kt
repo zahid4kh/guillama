@@ -30,8 +30,8 @@ fun App(
     viewModel: MainViewModel,
     chatViewModel: ChatViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val chatUiState by chatViewModel.chatUiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
+    val chatUiState by chatViewModel.chatUiState.collectAsState()
 
     PreComposeApp {
         val navigator = rememberNavigator()
