@@ -11,6 +11,7 @@ import java.awt.Dimension
 import org.koin.core.context.startKoin
 import org.koin.java.KoinJavaComponent.getKoin
 import ui.App
+import viewmodels.ChatViewModel
 import viewmodels.MainViewModel
 
 
@@ -20,6 +21,7 @@ fun main() = application {
     }
 
     val viewModel = getKoin().get<MainViewModel>()
+    val chatViewModel = getKoin().get<ChatViewModel>()
     val windowState = rememberWindowState(size = DpSize(800.dp, 600.dp))
 
     Window(
@@ -33,7 +35,8 @@ fun main() = application {
 
         ProvidePreComposeLocals {
             App(
-                viewModel = viewModel
+                viewModel = viewModel,
+                chatViewModel = chatViewModel
             )
         }
     }
