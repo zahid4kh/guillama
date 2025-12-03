@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.CheckCircle
@@ -126,7 +127,10 @@ fun Chatroom(
                     }
 
 
-                }
+                },
+                modifier = Modifier.clip(
+                    RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
+                )
             )
         }
     ) { innerPadding ->
