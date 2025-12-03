@@ -17,12 +17,12 @@ class Database {
     init {
         val userHome = System.getProperty("user.home")
         appDir = File(userHome, ".guillama").apply {
-           // if (!exists()) mkdirs()
+           if (!exists()) mkdirs()
         }
 
         settingsFile = File(appDir, "settings.json")
 
-        //if (!settingsFile.exists()) settingsFile.writeText(json.encodeToString(AppSettings()))
+        if (!settingsFile.exists()) settingsFile.writeText(json.encodeToString(AppSettings()))
     }
 
     suspend fun getSettings(): AppSettings = withContext(Dispatchers.IO) {
