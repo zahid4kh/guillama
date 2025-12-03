@@ -48,7 +48,6 @@ dependencies {
 
     // PreCompose navigation
     api("moe.tlaster:precompose:1.6.2")
-    api("moe.tlaster:precompose-viewmodel:1.6.2")
     api(compose.foundation)
     api(compose.animation)
 
