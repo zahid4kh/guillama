@@ -5,7 +5,10 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.DownloadDone
 import androidx.compose.material.icons.outlined.FlashOn
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
@@ -41,14 +45,17 @@ import androidx.compose.ui.unit.dp
 import ui.components.FeatureCard
 import ui.components.FeaturesSection
 import ui.components.ModelAvailabilityCountCard
+import viewmodels.ChatViewModel
 import viewmodels.MainViewModel
+import java.io.File
 import javax.swing.Icon
 
 @Composable
 fun EntryScreen(
     uiState: MainViewModel.UiState,
     mainViewModel: MainViewModel,
-    onCreateNewChatroom: () -> Unit
+    onCreateNewChatroom: () -> Unit,
+    onNavigateToChatroom: (File) -> Unit
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     LaunchedEffect(uiState.drawerShown){
@@ -77,23 +84,51 @@ fun EntryScreen(
                         fontWeight = FontWeight.Bold
                     )
 
-                    IconButton(
-                        onClick = { mainViewModel.closeSideDrawer() },
-                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-                    ){
-                        Icon(
-                            imageVector = Icons.Outlined.Cancel,
-                            contentDescription = null
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { mainViewModel.listChatRooms() },
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.Update,
+                                contentDescription = null
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { mainViewModel.closeSideDrawer() },
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.Cancel,
+                                contentDescription = null
+                            )
+                        }
                     }
+
                 }
 
                 HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "Drawer Item") },
-                    selected = false,
-                    onClick = {  }
-                )
+                LazyColumn {
+                    items(items = uiState.listOfChatrooms){ file ->
+                        TextButton(
+                            onClick = { onNavigateToChatroom(file) },
+                            modifier = Modifier
+                                .padding(horizontal = 3.dp)
+                        ){
+                            Text(
+                                text = file.nameWithoutExtension,
+                                style = MaterialTheme.typography.labelMedium,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
+
+                    }
+                }
 
             }
         },

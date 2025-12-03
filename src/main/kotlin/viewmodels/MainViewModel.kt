@@ -2,6 +2,7 @@ package viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import data.Chatroom
 import data.Database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,10 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
+import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.InputStreamReader
 
 class MainViewModel(
     private val database: Database,
@@ -22,6 +21,14 @@ class MainViewModel(
 
     private val modelLibraryPath = File("/usr/share/ollama/.ollama/models/manifests/registry.ollama.ai/library")
 
+    private val homeDir = System.getProperty("user.home")
+    val chatsDir = File("$homeDir/.guillama/chats")
+
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             val settings = database.getSettings()
@@ -29,6 +36,7 @@ class MainViewModel(
                 darkMode = settings.darkMode,
             )
 
+            listChatRooms()
             checkModels()
         }
     }
@@ -73,6 +81,23 @@ class MainViewModel(
         _uiState.update { it.copy(drawerShown = false) }
     }
 
+    fun listChatRooms(){
+        viewModelScope.launch {
+            if(chatsDir.exists()){
+                val files = chatsDir.listFiles().toList()
+                println("Found files in $chatsDir: $files")
+                _uiState.update {
+                    it.copy(listOfChatrooms = files)
+                }
+            }
+        }
+    }
+
+    fun selectChatroom(chatroom: File){
+        val decoded = json.decodeFromString<Chatroom>(chatroom.readText())
+        _uiState.update { it.copy(selectedChatroomTimestamp = decoded.createdAt) }
+    }
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
@@ -87,6 +112,8 @@ class MainViewModel(
         val darkMode: Boolean = false,
         val modelsLibrary: List<String> = mutableListOf(),
         val modelListDialogShown: Boolean = false,
-        val drawerShown: Boolean = false
+        val drawerShown: Boolean = false,
+        val listOfChatrooms: List<File> = emptyList(),
+        val selectedChatroomTimestamp: Long? = null
     )
 }

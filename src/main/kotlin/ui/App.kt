@@ -10,7 +10,7 @@ import viewmodels.MainViewModel
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
-import ui.screens.Chatroom
+import ui.screens.NewChatroom
 import viewmodels.ChatViewModel
 
 
@@ -37,12 +37,16 @@ fun App(
                         onCreateNewChatroom = {
                             navigator.navigate("/chatroom")
                             chatViewModel.createChatroom()
+                        },
+                        onNavigateToChatroom = {
+                            viewModel.selectChatroom(chatroom = it)
+                            navigator.navigate("/chatroom/${uiState.selectedChatroomTimestamp}")
                         }
                     )
                 }
 
                 scene(route = "/chatroom"){
-                    Chatroom(
+                    NewChatroom(
                         chatUiState = chatUiState,
                         chatViewModel = chatViewModel
                     )
