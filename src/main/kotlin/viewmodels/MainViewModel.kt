@@ -1,9 +1,9 @@
 package viewmodels
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import data.Database
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,53 +11,57 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 
 class MainViewModel(
     private val database: Database,
-) {
+): ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private val modelLibraryPath = File("/usr/share/ollama/.ollama/models/manifests/registry.ollama.ai/library")
 
     init {
-        scope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val settings = database.getSettings()
             _uiState.value = _uiState.value.copy(
                 darkMode = settings.darkMode,
             )
+
+            checkModels()
         }
     }
 
-    fun checkForAvailableModels(){
-        scope.launch(Dispatchers.IO) {
-            val command = listOf("ollama", "list")
-            val pb = ProcessBuilder(command)
-            val process = pb.start()
-            val result = BufferedReader(InputStreamReader(process.inputStream))
-
-            while(process.isAlive){
-                if(result.ready()){
-                    val line = result.readLine()
-                    withContext(Dispatchers.Main){
-                        _uiState.update { it.copy(availableModels = it.availableModels + line + "\n") }
+    private fun checkModels(){
+        if(!modelLibraryPath.exists()){
+            println("Default path for ollama models '$modelLibraryPath' was not found")
+            return
+        }else{
+            val numOfModels = modelLibraryPath.listFiles().size
+            println("Found $numOfModels models")
+            modelLibraryPath.listFiles().forEach { file ->
+                if(file.isDirectory){
+                    val modelParameterNum = file.listFiles()
+                    modelParameterNum.forEach { params ->
+                        val fullModelName = "${file.name}:${params.nameWithoutExtension}"
+                        _uiState.update {
+                            it.copy(
+                                modelsLibrary = it.modelsLibrary + fullModelName
+                            )
+                        }
+                        println("Model: $fullModelName")
                     }
-                    println("Current line is: $line")
                 }
             }
         }
-    }
-
-    fun clearOutput(){
-        _uiState.update { it.copy(availableModels = "") }
     }
 
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
 
-        scope.launch {
+        viewModelScope.launch {
             val settings = database.getSettings()
             database.saveSettings(settings.copy(darkMode = newDarkMode))
         }
@@ -65,6 +69,6 @@ class MainViewModel(
 
     data class UiState(
         val darkMode: Boolean = false,
-        val availableModels: String = ""
+        val modelsLibrary: List<String> = mutableListOf()
     )
 }
