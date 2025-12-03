@@ -5,6 +5,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import di.appModule
+import moe.tlaster.precompose.ProvidePreComposeLocals
 import ui.theme.AppTheme
 import java.awt.Dimension
 import org.koin.core.context.startKoin
@@ -30,7 +31,7 @@ fun main() = application {
     ) {
         window.minimumSize = Dimension(800, 600)
 
-        AppTheme {
+        ProvidePreComposeLocals {
             App(
                 viewModel = viewModel
             )
