@@ -22,7 +22,7 @@ class ChatViewModel(
     val chatUiState = _chatUiState.asStateFlow()
 
     private val homeDir = System.getProperty("user.home")
-    private val chatsDir = File("$homeDir/.guillama/chats")
+    val chatsDir = File("$homeDir/.guillama/chats")
 
     private val json = Json {
         prettyPrint = true
@@ -44,7 +44,7 @@ class ChatViewModel(
 
             val createdAt = System.currentTimeMillis()
             val chatroom = Chatroom(
-                title = "Default Model",
+                title = "",
                 selectedModel = null,
                 createdAt = createdAt
             )
@@ -52,6 +52,18 @@ class ChatViewModel(
             val jsonChatroom = json.encodeToString(chatroom)
             val chatroomFile = File(chatsDir, "${_chatUiState.value.chatRoomTitle}_${createdAt}.json")
             chatroomFile.writeText(jsonChatroom)
+
+            _chatUiState.update {
+                it.copy(loadedChatroom = chatroom)
+            }
+            println("Currently loaded chatroom: ${_chatUiState.value.loadedChatroom}")
+        }
+    }
+
+    fun updateSaveChatroom(){
+        _chatUiState.value.loadedChatroom?.let { chatroom ->
+            val chatroomTitle = _chatUiState.value.chatRoomTitle
+            val chatroomFileName = File(chatsDir, "${_chatUiState.value.chatRoomTitle}_${chatroom.createdAt}.json")
         }
     }
 
@@ -90,9 +102,10 @@ class ChatViewModel(
         val availableModels: List<String> = emptyList(),
         val showModelSelectorDropdown: Boolean = false,
         val isEditingTitle: Boolean = false,
-        val chatRoomTitle: String = "",
+        val chatRoomTitle: String = "Untitled",
         val selectedModel: String? = null,
         val userMessage: String = "",
-        val modelMessage: String? = null
+        val modelMessage: String? = null,
+        val loadedChatroom: Chatroom? = null,
     )
 }
