@@ -2,12 +2,16 @@ package viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import data.Chat
 import data.Chatroom
+import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.io.File
 
 
@@ -17,7 +21,13 @@ class ChatViewModel(
     private val _chatUiState = MutableStateFlow(ChatUiState())
     val chatUiState = _chatUiState.asStateFlow()
 
-    private val chatsDir = File(".guillama/chats")
+    private val homeDir = System.getProperty("user.home")
+    private val chatsDir = File("$homeDir/.guillama/chats")
+
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
 
     init {
         viewModelScope.launch {
@@ -27,13 +37,22 @@ class ChatViewModel(
     }
 
     fun createChatroom(){
-        if(!chatsDir.exists()){
-            chatsDir.mkdirs()
-        }
+        viewModelScope.launch(Dispatchers.IO) {
+            if(!chatsDir.exists()){
+                chatsDir.mkdirs()
+            }
 
-//        val chatroom = Chatroom(
-//            title =
-//        )
+            val createdAt = System.currentTimeMillis()
+            val chatroom = Chatroom(
+                title = "Default Model",
+                selectedModel = null,
+                createdAt = createdAt
+            )
+
+            val jsonChatroom = json.encodeToString(chatroom)
+            val chatroomFile = File(chatsDir, "${_chatUiState.value.chatRoomTitle}_${createdAt}.json")
+            chatroomFile.writeText(jsonChatroom)
+        }
     }
 
     fun onSelectModel(modelName: String){

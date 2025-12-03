@@ -34,7 +34,10 @@ fun App(
                     EntryScreen(
                         uiState = uiState,
                         mainViewModel = viewModel,
-                        onCreateNewChatroom = { navigator.navigate("/chatroom") }
+                        onCreateNewChatroom = {
+                            navigator.navigate("/chatroom")
+                            chatViewModel.createChatroom()
+                        }
                     )
                 }
 
