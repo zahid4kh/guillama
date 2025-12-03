@@ -47,7 +47,8 @@ import javax.swing.Icon
 @Composable
 fun EntryScreen(
     uiState: MainViewModel.UiState,
-    mainViewModel: MainViewModel
+    mainViewModel: MainViewModel,
+    onCreateNewChatroom: () -> Unit
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     LaunchedEffect(uiState.drawerShown){
@@ -130,7 +131,7 @@ fun EntryScreen(
 
                 Spacer(modifier = Modifier.height(60.dp))
                 Button(
-                    onClick = {  },
+                    onClick = { onCreateNewChatroom() },
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
                         .pointerHoverIcon(PointerIcon.Hand)
