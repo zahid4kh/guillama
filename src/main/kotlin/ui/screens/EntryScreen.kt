@@ -33,7 +33,8 @@ import javax.swing.Icon
 
 @Composable
 fun EntryScreen(
-    uiState: MainViewModel.UiState
+    uiState: MainViewModel.UiState,
+    mainViewModel: MainViewModel
 ){
     ModalNavigationDrawer(
         drawerContent = {
@@ -108,9 +109,46 @@ fun EntryScreen(
                 }
 
                 ModelAvailabilityCountCard(
-                    count = uiState.modelsLibrary.size
+                    count = uiState.modelsLibrary.size,
+                    onClick = { mainViewModel.showModelListDialog() }
                 )
             }
         }
+    }
+
+    if(uiState.modelListDialogShown){
+        AlertDialog(
+            onDismissRequest = { mainViewModel.closeModelListDialog() },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { mainViewModel.closeModelListDialog() },
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ){
+                    Text(
+                        text = "Close",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            confirmButton = {},
+            title = {
+                Text(
+                    text = "Available models",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                Column {
+                    uiState.modelsLibrary.forEach { model ->
+                        Text(
+                            text = model
+                        )
+                    }
+                }
+
+
+            }
+        )
     }
 }

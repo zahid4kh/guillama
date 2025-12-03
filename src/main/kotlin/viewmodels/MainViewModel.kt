@@ -57,6 +57,14 @@ class MainViewModel(
         }
     }
 
+    fun showModelListDialog(){
+        _uiState.update { it.copy(modelListDialogShown = true) }
+    }
+
+    fun closeModelListDialog(){
+        _uiState.update { it.copy(modelListDialogShown = false) }
+    }
+
     fun toggleDarkMode() {
         val newDarkMode = !_uiState.value.darkMode
         _uiState.value = _uiState.value.copy(darkMode = newDarkMode)
@@ -69,6 +77,7 @@ class MainViewModel(
 
     data class UiState(
         val darkMode: Boolean = false,
-        val modelsLibrary: List<String> = mutableListOf()
+        val modelsLibrary: List<String> = mutableListOf(),
+        val modelListDialogShown: Boolean = false
     )
 }
