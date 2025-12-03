@@ -8,5 +8,5 @@ import viewmodels.MainViewModel
 val appModule = module {
     single { Database() }
     single { MainViewModel(get()) }
-    single { ChatViewModel() }
+    single { ChatViewModel(get()) }
 }
