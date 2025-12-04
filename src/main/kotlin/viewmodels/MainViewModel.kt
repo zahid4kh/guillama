@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 class MainViewModel(
-    private val database: Database,
+    private val database: Database
 ): ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
