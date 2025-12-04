@@ -56,7 +56,7 @@ class ChatViewModel(
             val chatroomFile = File(chatsDir, "${formattedDate}.json")
             chatroomFile.writeText(jsonChatroom)
 
-            loadChatroom(chatroom)
+            loadChatroom(chatroom.copy(selectedModel = chatroom.selectedModel))
         }
     }
 
@@ -65,6 +65,7 @@ class ChatViewModel(
             it.copy(
                 loadedChatroom = chatroom,
                 chatRoomTitle = chatroom.title,
+                selectedModel = chatroom.selectedModel
             )
         }
         println("CHATVIEWMODEL:  Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
@@ -97,7 +98,7 @@ class ChatViewModel(
     fun convertMillisToFormattedDateTime(milliseconds: Long): String {
         val instant = Instant.ofEpochMilli(milliseconds)
         val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy_HH-mm")
+        val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy_HH-mm-ss")
         return dateTime.format(formatter)
     }
 
