@@ -2,9 +2,7 @@ package viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import data.Chat
 import data.Chatroom
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +11,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 
 class ChatViewModel(
@@ -43,28 +45,53 @@ class ChatViewModel(
             }
 
             val createdAt = System.currentTimeMillis()
+            val formattedDate = convertMillisToFormattedDateTime(createdAt)
             val chatroom = Chatroom(
-                title = "",
+                title = formattedDate,
                 selectedModel = null,
                 createdAt = createdAt
             )
 
             val jsonChatroom = json.encodeToString(chatroom)
-            val chatroomFile = File(chatsDir, "${_chatUiState.value.chatRoomTitle}_${createdAt}.json")
+            val chatroomFile = File(chatsDir, "${formattedDate}.json")
             chatroomFile.writeText(jsonChatroom)
 
-            _chatUiState.update {
-                it.copy(loadedChatroom = chatroom)
-            }
-            println("Currently loaded chatroom: ${_chatUiState.value.loadedChatroom}")
+            loadChatroom(chatroom)
         }
     }
 
-    fun updateSaveChatroom(){
-        _chatUiState.value.loadedChatroom?.let { chatroom ->
-            val chatroomTitle = _chatUiState.value.chatRoomTitle
-            val chatroomFileName = File(chatsDir, "${_chatUiState.value.chatRoomTitle}_${chatroom.createdAt}.json")
+    fun loadChatroom(chatroom: Chatroom){
+        _chatUiState.update {
+            it.copy(
+                loadedChatroom = chatroom,
+                chatRoomTitle = chatroom.title,
+            )
         }
+        println("CHATVIEWMODEL:  Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
+    }
+
+    fun updateSaveChatroom(){
+        viewModelScope.launch(Dispatchers.IO) {
+            _chatUiState.value.loadedChatroom?.let { chatroom ->
+                val chatroomTitle = _chatUiState.value.chatRoomTitle
+                val formattedDate = convertMillisToFormattedDateTime(chatroom.createdAt)
+                val chatroomFileName = File(chatsDir, "${formattedDate}.json")
+
+                val updated = chatroom.copy(
+                    title = chatroomTitle,
+                    selectedModel = _chatUiState.value.selectedModel
+                )
+                chatroomFileName.writeText(json.encodeToString(updated))
+                println("Updated chatroom: $updated")
+                showMessage("Chatroom updated!")
+            }
+        }
+    }
+
+    private suspend fun showMessage(message: String){
+        _chatUiState.update { it.copy(message = message) }
+        delay(1000)
+        _chatUiState.update { it.copy(message = "") }
     }
 
     fun convertMillisToFormattedDateTime(milliseconds: Long): String {
@@ -109,7 +136,8 @@ class ChatViewModel(
         val availableModels: List<String> = emptyList(),
         val showModelSelectorDropdown: Boolean = false,
         val isEditingTitle: Boolean = false,
-        val chatRoomTitle: String = "Untitled",
+        val chatRoomTitle: String = "nothing",
+        val message: String = "",
         val selectedModel: String? = null,
         val userMessage: String = "",
         val modelMessage: String? = null,

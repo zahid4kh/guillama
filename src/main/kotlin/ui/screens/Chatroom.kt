@@ -1,7 +1,13 @@
 package ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,25 +18,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import viewmodels.ChatViewModel
+import java.awt.SystemColor.text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewChatroom(
+fun Chatroom(
     chatViewModel: ChatViewModel,
-    chatUiState: ChatViewModel.ChatUiState
+    chatUiState: ChatViewModel.ChatUiState,
+    onNavigateBackToHome: () -> Unit
 ){
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -71,6 +83,30 @@ fun NewChatroom(
 
                 },
                 actions = {
+                    AnimatedVisibility(
+                        visible = chatUiState.message.isNotEmpty(),
+                    ){
+                        OutlinedCard(
+                            modifier = Modifier.padding(10.dp),
+                            colors = CardDefaults.outlinedCardColors(
+                                containerColor = Color.Green.copy(alpha = 0.6f)
+                            )
+                        ) {
+                            Text(
+                                text = chatUiState.message?:"",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+                    IconButton(
+                        onClick = { chatViewModel.updateSaveChatroom() }
+                    ){
+                        Icon(
+                            imageVector = Icons.Outlined.Save,
+                            contentDescription = "Save or update this chatroom"
+                        )
+                    }
                     if(chatUiState.selectedModel == null){
                         Box(
                             modifier = Modifier
@@ -114,8 +150,17 @@ fun NewChatroom(
                             modifier = Modifier.padding(horizontal = 10.dp)
                         )
                     }
-
-
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { onNavigateBackToHome() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Go back to entry screen"
+                        )
+                    }
                 },
                 modifier = Modifier.clip(
                     RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)

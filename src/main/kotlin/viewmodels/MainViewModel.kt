@@ -84,8 +84,7 @@ class MainViewModel(
     fun listChatRooms(){
         viewModelScope.launch {
             if(chatsDir.exists()){
-                val files = chatsDir.listFiles().toList()
-                println("Found files in $chatsDir: $files")
+                val files = chatsDir.listFiles()
                 val listOfChatrooms = mutableListOf<Chatroom>()
                 files.forEach { file ->
                     val decodedString = json.decodeFromString<Chatroom>(file.readText())

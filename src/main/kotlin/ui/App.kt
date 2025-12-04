@@ -11,8 +11,7 @@ import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
-import ui.screens.ExistingChatroom
-import ui.screens.NewChatroom
+import ui.screens.Chatroom
 import viewmodels.ChatViewModel
 
 
@@ -37,32 +36,23 @@ fun App(
                         uiState = uiState,
                         mainViewModel = viewModel,
                         onCreateNewChatroom = {
-                            navigator.navigate("/chatroom")
                             chatViewModel.createChatroom()
+                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
                         },
                         onNavigateToChatroom = {
                             viewModel.selectChatroom(chatroom = it)
                             navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
+                            chatViewModel.loadChatroom(chatroom = it)
                         }
                     )
                 }
 
-                scene(route = "/chatroom/{createdAt}"){ backStackEntry ->
+                scene(route = "/chatroom/{createdAt}") {backStackEntry ->
                     val createdAt = backStackEntry.path<Long>("createdAt")
-                    uiState.selectedChatroom?.let { chatroom ->
-                        ExistingChatroom(
-                            chatViewModel = chatViewModel,
-                            chatUiState = chatUiState,
-                            chatroom = chatroom
-                        )
-                    }
-
-                }
-
-                scene(route = "/chatroom"){
-                    NewChatroom(
+                    Chatroom(
                         chatUiState = chatUiState,
-                        chatViewModel = chatViewModel
+                        chatViewModel = chatViewModel,
+                        onNavigateBackToHome = { navigator.goBack() }
                     )
                 }
             }

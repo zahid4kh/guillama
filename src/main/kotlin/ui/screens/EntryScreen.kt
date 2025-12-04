@@ -65,6 +65,7 @@ fun EntryScreen(
                 open()
             } else close()
         }
+        mainViewModel.listChatRooms()
     }
 
     ModalNavigationDrawer(
