@@ -67,6 +67,13 @@ class ChatViewModel(
         }
     }
 
+    fun convertMillisToFormattedDateTime(milliseconds: Long): String {
+        val instant = Instant.ofEpochMilli(milliseconds)
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+        val formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy_HH-mm")
+        return dateTime.format(formatter)
+    }
+
     fun onSelectModel(modelName: String){
         _chatUiState.update { it.copy(selectedModel = modelName) }
         println("Selected model: ${_chatUiState.value.selectedModel}")
