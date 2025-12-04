@@ -101,6 +101,7 @@ class MainViewModel(
 
     fun selectChatroom(chatroom: Chatroom){
         _uiState.update { it.copy(selectedChatroom = chatroom) }
+        println("MAINVIEWMODEL: Selected chatroom: ${_uiState.value.selectedChatroom}")
     }
 
     fun toggleDarkMode() {
