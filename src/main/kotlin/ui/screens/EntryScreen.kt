@@ -42,6 +42,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import data.Chatroom
 import ui.components.FeatureCard
 import ui.components.FeaturesSection
 import ui.components.ModelAvailabilityCountCard
@@ -55,7 +56,7 @@ fun EntryScreen(
     uiState: MainViewModel.UiState,
     mainViewModel: MainViewModel,
     onCreateNewChatroom: () -> Unit,
-    onNavigateToChatroom: (File) -> Unit
+    onNavigateToChatroom: (Chatroom) -> Unit
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     LaunchedEffect(uiState.drawerShown){
@@ -112,14 +113,14 @@ fun EntryScreen(
 
                 HorizontalDivider()
                 LazyColumn {
-                    items(items = uiState.listOfChatrooms){ file ->
+                    items(items = uiState.listOfChatrooms){ chatroom ->
                         TextButton(
-                            onClick = { onNavigateToChatroom(file) },
+                            onClick = { onNavigateToChatroom(chatroom) },
                             modifier = Modifier
                                 .padding(horizontal = 3.dp)
                         ){
                             Text(
-                                text = file.nameWithoutExtension,
+                                text = chatroom.title,
                                 style = MaterialTheme.typography.labelMedium,
                                 textAlign = TextAlign.Start,
                                 modifier = Modifier

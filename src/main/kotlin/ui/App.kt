@@ -9,7 +9,9 @@ import ui.theme.AppTheme
 import viewmodels.MainViewModel
 import moe.tlaster.precompose.PreComposeApp
 import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
+import ui.screens.ExistingChatroom
 import ui.screens.NewChatroom
 import viewmodels.ChatViewModel
 
@@ -40,9 +42,21 @@ fun App(
                         },
                         onNavigateToChatroom = {
                             viewModel.selectChatroom(chatroom = it)
-                            navigator.navigate("/chatroom/${uiState.selectedChatroomTimestamp}")
+                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
                         }
                     )
+                }
+
+                scene(route = "/chatroom/{createdAt}"){ backStackEntry ->
+                    val createdAt = backStackEntry.path<Long>("createdAt")
+                    uiState.selectedChatroom?.let { chatroom ->
+                        ExistingChatroom(
+                            chatViewModel = chatViewModel,
+                            chatUiState = chatUiState,
+                            chatroom = chatroom
+                        )
+                    }
+
                 }
 
                 scene(route = "/chatroom"){

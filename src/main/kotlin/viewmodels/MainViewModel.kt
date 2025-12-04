@@ -86,16 +86,21 @@ class MainViewModel(
             if(chatsDir.exists()){
                 val files = chatsDir.listFiles().toList()
                 println("Found files in $chatsDir: $files")
-                _uiState.update {
-                    it.copy(listOfChatrooms = files)
+                val listOfChatrooms = mutableListOf<Chatroom>()
+                files.forEach { file ->
+                    val decodedString = json.decodeFromString<Chatroom>(file.readText())
+                    listOfChatrooms.add(decodedString)
                 }
+                _uiState.update {
+                    it.copy(listOfChatrooms = listOfChatrooms)
+                }
+                println("Updated list of chatroom data classes: $listOfChatrooms")
             }
         }
     }
 
-    fun selectChatroom(chatroom: File){
-        val decoded = json.decodeFromString<Chatroom>(chatroom.readText())
-        _uiState.update { it.copy(selectedChatroomTimestamp = decoded.createdAt) }
+    fun selectChatroom(chatroom: Chatroom){
+        _uiState.update { it.copy(selectedChatroom = chatroom) }
     }
 
     fun toggleDarkMode() {
@@ -113,7 +118,7 @@ class MainViewModel(
         val modelsLibrary: List<String> = mutableListOf(),
         val modelListDialogShown: Boolean = false,
         val drawerShown: Boolean = false,
-        val listOfChatrooms: List<File> = emptyList(),
-        val selectedChatroomTimestamp: Long? = null
+        val listOfChatrooms: List<Chatroom> = emptyList(),
+        val selectedChatroom: Chatroom? = null
     )
 }
