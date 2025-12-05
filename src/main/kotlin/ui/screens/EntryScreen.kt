@@ -51,6 +51,7 @@ import viewmodels.MainViewModel
 import java.io.File
 import javax.swing.Icon
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryScreen(
     uiState: MainViewModel.UiState,
@@ -89,25 +90,42 @@ fun EntryScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = { mainViewModel.listChatRooms() },
-                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = {
+                                PlainTooltip { Text("Reload chatrooms", style = MaterialTheme.typography.bodyMedium) }
+                            },
+                            state = rememberTooltipState()
                         ){
-                            Icon(
-                                imageVector = Icons.Outlined.Update,
-                                contentDescription = null
-                            )
+                            IconButton(
+                                onClick = { mainViewModel.listChatRooms() },
+                                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                            ){
+                                Icon(
+                                    imageVector = Icons.Outlined.Update,
+                                    contentDescription = "Reload chatrooms"
+                                )
+                            }
                         }
 
-                        IconButton(
-                            onClick = { mainViewModel.closeSideDrawer() },
-                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = {
+                                PlainTooltip { Text("Close menu", style = MaterialTheme.typography.bodyMedium) }
+                            },
+                            state = rememberTooltipState()
                         ){
-                            Icon(
-                                imageVector = Icons.Outlined.Cancel,
-                                contentDescription = null
-                            )
+                            IconButton(
+                                onClick = { mainViewModel.closeSideDrawer() },
+                                modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                            ){
+                                Icon(
+                                    imageVector = Icons.Outlined.Cancel,
+                                    contentDescription = null
+                                )
+                            }
                         }
+
                     }
 
                 }
@@ -166,24 +184,34 @@ fun EntryScreen(
                 FeaturesSection()
 
                 Spacer(modifier = Modifier.height(60.dp))
-                Button(
-                    onClick = { onCreateNewChatroom() },
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .size(220.dp, 60.dp)
-                ){
-                    Icon(
-                        imageVector = Icons.Outlined.ChatBubble,
-                        contentDescription = null
-                    )
 
-                    Spacer(modifier = Modifier.width(20.dp))
-                    Text(
-                        text = "Start Chatting",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip { Text("Create a new chatroom", style = MaterialTheme.typography.bodyMedium) }
+                    },
+                    state = rememberTooltipState()
+                ){
+                    Button(
+                        onClick = { onCreateNewChatroom() },
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier
+                            .pointerHoverIcon(PointerIcon.Hand)
+                            .size(220.dp, 60.dp)
+                    ){
+                        Icon(
+                            imageVector = Icons.Outlined.ChatBubble,
+                            contentDescription = null
+                        )
+
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Text(
+                            text = "Start Chatting",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
+
 
                 if(uiState.modelsLibrary.isNotEmpty()){
                     ModelAvailabilityCountCard(
@@ -199,15 +227,24 @@ fun EntryScreen(
                 exit = scaleOut(),
                 enter = scaleIn()
             ){
-                IconButton(
-                    onClick = { mainViewModel.showSideDrawer() },
-                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip { Text("Open menu", style = MaterialTheme.typography.bodyMedium) }
+                    },
+                    state = rememberTooltipState()
                 ){
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = null
-                    )
+                    IconButton(
+                        onClick = { mainViewModel.showSideDrawer() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = null
+                        )
+                    }
                 }
+
             }
 
         }
