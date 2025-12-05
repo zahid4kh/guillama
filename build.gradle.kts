@@ -48,6 +48,8 @@ dependencies {
     api(compose.foundation)
     api(compose.animation)
 
+    // OkHttp3 for ollama api calls
+    implementation("com.squareup.okhttp3:okhttp:5.2.0")
 }
 
 
