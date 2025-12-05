@@ -11,6 +11,10 @@ class OllamaApi {
         println("Is Ollama running: $isOllamaRunning")
     }
 
+    fun generateStream(model: String, prompt: String){
+
+    }
+
     fun isOllamaRunning(): Boolean {
         val ollamaUrl = "http://localhost:11434"
         val request = Request.Builder()

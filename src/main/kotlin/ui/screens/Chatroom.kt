@@ -9,12 +9,15 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
@@ -26,6 +29,10 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +42,8 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ui.components.MessageInputCard
+import ui.components.OllamaChatBubble
+import ui.components.UserChatBubble
 import viewmodels.ChatViewModel
 import java.awt.SystemColor.text
 
@@ -45,6 +54,9 @@ fun Chatroom(
     chatUiState: ChatViewModel.ChatUiState,
     onNavigateBackToHome: () -> Unit
 ){
+    var isUserBubbleClicked by remember { mutableStateOf(false) }
+    var isOllamaBubbleClicked by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -203,6 +215,35 @@ fun Chatroom(
                 .fillMaxSize()
                 .padding(innerPadding)
         ){
+            LazyColumn(
+                modifier = Modifier.matchParentSize()
+            ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ){
+                        UserChatBubble(
+                            modifier = Modifier,
+                            onClick = { isUserBubbleClicked = !isUserBubbleClicked },
+                            isClicked = isUserBubbleClicked
+                        )
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ){
+                        OllamaChatBubble(
+                            modifier = Modifier,
+                            onClick = { isOllamaBubbleClicked = !isOllamaBubbleClicked },
+                            isClicked = isOllamaBubbleClicked
+                        )
+                    }
+                }
+            }
 
 
             MessageInputCard(
