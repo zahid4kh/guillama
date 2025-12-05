@@ -13,11 +13,12 @@ data class Chatroom(
     val title: String = "Default title",
     val selectedModel: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
-    val messages: List<Chat> = emptyList()
+    val messages: List<Message> = emptyList()
 )
 
 @Serializable
-data class Chat(
-    val userMessage: String = "",
-    val modelMessage: String = ""
+data class Message(
+    val isUserMessage: Boolean = false,
+    val sentAt: Long = System.currentTimeMillis(),
+    val message: String = "",
 )
