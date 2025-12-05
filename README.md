@@ -1,6 +1,6 @@
 # GUILLAMA
 
-A desktop application built with Kotlin and Compose for Desktop.
+**in development**
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20-blue.svg?logo=kotlin)](https://kotlinlang.org) [![Compose](https://img.shields.io/badge/Compose-1.8.2-blue.svg?logo=jetpack-compose)](https://www.jetbrains.com/lp/compose-multiplatform/)
 
@@ -10,6 +10,10 @@ A desktop application built with Kotlin and Compose for Desktop.
 - Dark mode support
 - Cross-platform (Windows, macOS, Linux)
 - Hot reload support for faster development
+
+## Screenshot
+![demo-img](https://github.com/user-attachments/assets/24849eb6-c163-48bf-b4f3-7dbc50d0263a)
+![demo-img](https://github.com/user-attachments/assets/c23e800f-b60d-4af6-88e6-d5ed4bfc5442)
 
 ## Development Setup
 
