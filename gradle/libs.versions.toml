@@ -6,7 +6,6 @@ kotlinxSerializationJson = "1.8.1"
 koin = "4.0.3"
 hotReload = "1.0.0"
 slf4j = "2.0.12"
-deskit = "1.2.0"
 
 [libraries]
 # Kotlinx
@@ -20,9 +19,6 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
 # SLF4J Logging (for hot reload)
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j" }
-
-# Deskit
-deskit = { group = "com.github.zahid4kh", name = "deskit", version.ref = "deskit" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

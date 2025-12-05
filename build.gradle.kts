@@ -40,9 +40,6 @@ dependencies {
     // SLF4J Logging (for hot reload)
     implementation(libs.bundles.slf4j)
 
-    // Deskit - for Material3 file chooser and information dialogs
-    implementation(libs.deskit)
-
     // common viewmodel
     implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.9.6")
 
