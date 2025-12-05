@@ -184,10 +184,12 @@ fun EntryScreen(
                     )
                 }
 
-                ModelAvailabilityCountCard(
-                    count = uiState.modelsLibrary.size,
-                    onClick = { mainViewModel.showModelListDialog() }
-                )
+                if(uiState.modelsLibrary.isNotEmpty()){
+                    ModelAvailabilityCountCard(
+                        count = uiState.modelsLibrary.size,
+                        onClick = { mainViewModel.showModelListDialog() }
+                    )
+                }
             }
 
             AnimatedVisibility(

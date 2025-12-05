@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import ui.theme.getJetbrainsMonoFamily
 
 @Composable
 fun ModelAvailabilityCountCard(
@@ -81,7 +82,8 @@ fun ModelAvailabilityCountCard(
 
             Text(
                 text = "$count ollama models detected",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
+                fontFamily = getJetbrainsMonoFamily(),
                 modifier = Modifier.padding(horizontal = 10.dp)
             )
         }
