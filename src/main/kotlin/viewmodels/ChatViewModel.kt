@@ -56,33 +56,38 @@ class ChatViewModel(
             val chatroomFile = File(chatsDir, "${formattedDate}.json")
             chatroomFile.writeText(jsonChatroom)
 
-            loadChatroom(chatroom.copy(selectedModel = chatroom.selectedModel))
+            loadChatroom(chatroom, chatroomFile)
         }
     }
 
-    fun loadChatroom(chatroom: Chatroom){
+    fun loadChatroom(chatroom: Chatroom, file: File? = null){
+        val chatroomFile = file ?: run {
+            val formattedDate = convertMillisToFormattedDateTime(chatroom.createdAt)
+            File(chatsDir, "${formattedDate}.json")
+        }
+
         _chatUiState.update {
             it.copy(
                 loadedChatroom = chatroom,
+                loadedChatroomFile = chatroomFile,
                 chatRoomTitle = chatroom.title,
                 selectedModel = chatroom.selectedModel
             )
         }
-        println("CHATVIEWMODEL:  Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
+        println("CHATVIEWMODEL: Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
     }
 
     fun updateSaveChatroom(){
         viewModelScope.launch(Dispatchers.IO) {
-            _chatUiState.value.loadedChatroom?.let { chatroom ->
-                val chatroomTitle = _chatUiState.value.chatRoomTitle
-                val formattedDate = convertMillisToFormattedDateTime(chatroom.createdAt)
-                val chatroomFileName = File(chatsDir, "${formattedDate}.json")
+            val chatroom = _chatUiState.value.loadedChatroom
+            val file = _chatUiState.value.loadedChatroomFile
 
+            if (chatroom != null && file != null) {
                 val updated = chatroom.copy(
-                    title = chatroomTitle,
+                    title = _chatUiState.value.chatRoomTitle,
                     selectedModel = _chatUiState.value.selectedModel
                 )
-                chatroomFileName.writeText(json.encodeToString(updated))
+                file.writeText(json.encodeToString(updated))
                 println("Updated chatroom: $updated")
                 showMessage("Chatroom updated!")
             }
@@ -143,5 +148,6 @@ class ChatViewModel(
         val userMessage: String = "",
         val modelMessage: String? = null,
         val loadedChatroom: Chatroom? = null,
+        val loadedChatroomFile: File? = null
     )
 }

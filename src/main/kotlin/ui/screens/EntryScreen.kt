@@ -56,7 +56,7 @@ fun EntryScreen(
     uiState: MainViewModel.UiState,
     mainViewModel: MainViewModel,
     onCreateNewChatroom: () -> Unit,
-    onNavigateToChatroom: (Chatroom) -> Unit
+    onNavigateToChatroom: (Pair<Chatroom, File>) -> Unit
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     LaunchedEffect(uiState.drawerShown){
@@ -114,9 +114,9 @@ fun EntryScreen(
 
                 HorizontalDivider()
                 LazyColumn {
-                    items(items = uiState.listOfChatrooms){ chatroom ->
+                    items(items = uiState.listOfChatroomsWithFiles){ (chatroom, file) ->
                         TextButton(
-                            onClick = { onNavigateToChatroom(chatroom) },
+                            onClick = { onNavigateToChatroom(chatroom to file) },
                             modifier = Modifier
                                 .padding(horizontal = 3.dp)
                         ){
@@ -128,10 +128,8 @@ fun EntryScreen(
                                     .fillMaxWidth()
                             )
                         }
-
                     }
                 }
-
             }
         },
         drawerState = drawerState,

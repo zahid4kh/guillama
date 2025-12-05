@@ -13,6 +13,7 @@ import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
 import ui.screens.Chatroom
 import viewmodels.ChatViewModel
+import java.io.File
 
 
 @Composable
@@ -39,10 +40,10 @@ fun App(
                             chatViewModel.createChatroom()
                             navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
                         },
-                        onNavigateToChatroom = {
-                            viewModel.selectChatroom(chatroom = it)
+                        onNavigateToChatroom = { (chatroom, file) ->
+                            viewModel.selectChatroom(chatroom = chatroom)
                             navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
-                            chatViewModel.loadChatroom(chatroom = it)
+                            chatViewModel.loadChatroom(chatroom = chatroom, file = file)
                         }
                     )
                 }

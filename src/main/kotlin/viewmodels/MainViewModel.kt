@@ -85,15 +85,15 @@ class MainViewModel(
         viewModelScope.launch {
             if(chatsDir.exists()){
                 val files = chatsDir.listFiles()
-                val listOfChatrooms = mutableListOf<Chatroom>()
+                val listOfChatrooms = mutableListOf<Pair<Chatroom, File>>()
                 files.forEach { file ->
                     val decodedString = json.decodeFromString<Chatroom>(file.readText())
-                    listOfChatrooms.add(decodedString)
+                    listOfChatrooms.add(decodedString to file)
                 }
                 _uiState.update {
-                    it.copy(listOfChatrooms = listOfChatrooms)
+                    it.copy(listOfChatroomsWithFiles = listOfChatrooms)
                 }
-                println("Updated list of chatroom data classes: $listOfChatrooms")
+                println("Updated list of chatroom data classes: ${listOfChatrooms.map { it.first }}")
             }
         }
     }
@@ -118,7 +118,7 @@ class MainViewModel(
         val modelsLibrary: List<String> = mutableListOf(),
         val modelListDialogShown: Boolean = false,
         val drawerShown: Boolean = false,
-        val listOfChatrooms: List<Chatroom> = emptyList(),
+        val listOfChatroomsWithFiles: List<Pair<Chatroom, File>> = emptyList(),
         val selectedChatroom: Chatroom? = null
     )
 }
