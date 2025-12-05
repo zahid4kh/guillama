@@ -119,6 +119,7 @@ fun EntryScreen(
                             onClick = { onNavigateToChatroom(chatroom to file) },
                             modifier = Modifier
                                 .padding(horizontal = 3.dp)
+                                .pointerHoverIcon(PointerIcon.Hand)
                         ){
                             Text(
                                 text = chatroom.title,
