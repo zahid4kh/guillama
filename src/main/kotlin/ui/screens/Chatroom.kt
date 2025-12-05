@@ -70,15 +70,24 @@ fun Chatroom(
                             }
                         }
 
-                        IconButton(
-                            onClick = { chatViewModel.handleEditSaveTitle() }
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = {
+                                PlainTooltip { Text(if(chatUiState.isEditingTitle) "Save title" else "Rename title", style = MaterialTheme.typography.bodyMedium) }
+                            },
+                            state = rememberTooltipState()
                         ){
-                            Icon(
-                                imageVector = if(chatUiState.isEditingTitle) Icons.Default.CheckCircle else Icons.Default.EditNote,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
+                            IconButton(
+                                onClick = { chatViewModel.handleEditSaveTitle() }
+                            ){
+                                Icon(
+                                    imageVector = if(chatUiState.isEditingTitle) Icons.Default.CheckCircle else Icons.Default.EditNote,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
+
                     }
 
                 },
@@ -99,14 +108,25 @@ fun Chatroom(
                             )
                         }
                     }
-                    IconButton(
-                        onClick = { chatViewModel.updateSaveChatroom() }
+
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip { Text("Save changes", style = MaterialTheme.typography.bodyMedium) }
+                        },
+                        state = rememberTooltipState()
                     ){
-                        Icon(
-                            imageVector = Icons.Outlined.Save,
-                            contentDescription = "Save or update this chatroom"
-                        )
+                        IconButton(
+                            onClick = { chatViewModel.updateSaveChatroom() },
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.Save,
+                                contentDescription = "Save or update this chatroom"
+                            )
+                        }
                     }
+
                     if(chatUiState.selectedModel == null){
                         Box(
                             modifier = Modifier
@@ -152,15 +172,24 @@ fun Chatroom(
                     }
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { onNavigateBackToHome() },
-                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip { Text("Go Home", style = MaterialTheme.typography.bodyMedium) }
+                        },
+                        state = rememberTooltipState()
                     ){
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Go back to entry screen"
-                        )
+                        IconButton(
+                            onClick = { onNavigateBackToHome() },
+                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                        ){
+                            Icon(
+                                imageVector = Icons.Default.ArrowBackIosNew,
+                                contentDescription = "Go back to entry screen"
+                            )
+                        }
                     }
+
                 },
                 modifier = Modifier.clip(
                     RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
@@ -205,20 +234,29 @@ fun Chatroom(
                         )
                     )
 
-                    IconButton(
-                        onClick = {  },
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                            .pointerHoverIcon(PointerIcon.Hand)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        enabled = chatUiState.selectedModel != null
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip { Text("Send message", style = MaterialTheme.typography.bodySmall) }
+                        },
+                        state = rememberTooltipState()
                     ){
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Send,
-                            contentDescription = "Send message"
-                        )
+                        IconButton(
+                            onClick = {  },
+                            modifier = Modifier
+                                .padding(horizontal = 10.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                                .pointerHoverIcon(PointerIcon.Hand)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            enabled = chatUiState.selectedModel != null
+                        ){
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.Send,
+                                contentDescription = "Send message"
+                            )
+                        }
                     }
+
                 }
             }
 
