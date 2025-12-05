@@ -1,6 +1,5 @@
 package data
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -45,8 +44,13 @@ data class UserMessage(
 )
 
 @Serializable
+data class GenericMessage(
+    val role: String = "",
+    val content: String = ""
+)
+
+@Serializable
 data class PromptWithHistory(
     val model: String = "gemma3:4b",
-    @Contextual
-    val messages: List<Any> = listOf(UserMessage())
+    val messages: List<GenericMessage> = emptyList()
 )
