@@ -34,6 +34,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import ui.components.MessageInputCard
 import viewmodels.ChatViewModel
 import java.awt.SystemColor.text
 
@@ -202,64 +203,13 @@ fun Chatroom(
                 .fillMaxSize()
                 .padding(innerPadding)
         ){
-            OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(3.dp)
-                    .animateContentSize()
-                    .align(Alignment.BottomCenter)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                ) {
-                    OutlinedTextField(
-                        value = chatUiState.userMessage,
-                        onValueChange = { chatViewModel.onUserMessageTyped(it) },
-                        shape = MaterialTheme.shapes.medium,
-                        placeholder = {
-                            Text(
-                                text = "Type your message..."
-                            )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .animateContentSize(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
-                    )
 
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        tooltip = {
-                            PlainTooltip { Text("Send message", style = MaterialTheme.typography.bodySmall) }
-                        },
-                        state = rememberTooltipState()
-                    ){
-                        IconButton(
-                            onClick = {  },
-                            modifier = Modifier
-                                .padding(horizontal = 10.dp)
-                                .clip(MaterialTheme.shapes.medium)
-                                .pointerHoverIcon(PointerIcon.Hand)
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                            enabled = chatUiState.selectedModel != null
-                        ){
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.Send,
-                                contentDescription = "Send message"
-                            )
-                        }
-                    }
 
-                }
-            }
-
+            MessageInputCard(
+                chatUiState = chatUiState,
+                chatViewModel = chatViewModel,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
