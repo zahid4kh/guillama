@@ -1,5 +1,6 @@
 package di
 
+import api.OllamaApi
 import data.Database
 import org.koin.dsl.module
 import viewmodels.ChatViewModel
@@ -9,4 +10,5 @@ val appModule = module {
     single { Database() }
     single { MainViewModel(get()) }
     single { ChatViewModel(get()) }
+    single { OllamaApi() }
 }
