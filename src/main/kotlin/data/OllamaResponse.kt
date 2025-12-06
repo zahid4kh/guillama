@@ -52,5 +52,5 @@ data class GenericMessage(
 @Serializable
 data class PromptWithHistory(
     val model: String = "gemma3:4b",
-    val messages: List<GenericMessage> = emptyList()
+    val messages: List<GenericMessage> = mutableListOf()
 )
