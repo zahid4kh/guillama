@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Instant
@@ -206,15 +207,18 @@ class ChatViewModel(
             }
 
             var fullResponse = ""
-            api.generateStream(prompt) { token ->
-                fullResponse += token
+            api.generateStream(
+                prompt = prompt,
+                onToken = {token ->
+                    fullResponse += token
 
-                updateLastAssistantMessage(fullResponse)
+                    updateLastAssistantMessage(fullResponse)
 
-                viewModelScope.launch(Dispatchers.Main) {
-                    loadMessages()
+                    viewModelScope.launch(Dispatchers.Main) {
+                        loadMessages()
+                    }
                 }
-            }
+            )
         }
     }
 
