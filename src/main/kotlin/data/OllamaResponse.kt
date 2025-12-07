@@ -38,12 +38,6 @@ data class OllamaStreamResponse(
 )
 
 @Serializable
-data class UserMessage(
-    val role: String = "user",
-    val content: String = ""
-)
-
-@Serializable
 data class GenericMessage(
     val role: String = "",
     val content: String = ""
@@ -51,6 +45,14 @@ data class GenericMessage(
 
 @Serializable
 data class PromptWithHistory(
-    val model: String = "gemma3:4b",
+    val model: String = "",
     val messages: List<GenericMessage> = mutableListOf()
+)
+
+@Serializable
+data class Chatroom(
+    val id: Long = System.currentTimeMillis(),
+    val title: String = "Test chatroom",
+    val modelInThisChatroom: String? = null,
+    val history: PromptWithHistory = PromptWithHistory()
 )
