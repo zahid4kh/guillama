@@ -58,7 +58,6 @@ class MainViewModel(
                                 modelsLibrary = it.modelsLibrary + fullModelName
                             )
                         }
-                        println("Model: $fullModelName")
                     }
                 }
             }
@@ -93,14 +92,12 @@ class MainViewModel(
                 _uiState.update {
                     it.copy(listOfChatroomsWithFiles = listOfChatrooms)
                 }
-                println("Updated list of chatroom data classes: ${listOfChatrooms.map { it.first }}")
             }
         }
     }
 
     fun selectChatroom(chatroom: Chatroom){
         _uiState.update { it.copy(selectedChatroom = chatroom) }
-        println("MAINVIEWMODEL: Selected chatroom: ${_uiState.value.selectedChatroom}")
     }
 
     fun toggleDarkMode() {
