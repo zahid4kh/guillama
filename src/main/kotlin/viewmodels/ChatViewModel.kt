@@ -78,6 +78,17 @@ class ChatViewModel(
         println("CHATVIEWMODEL: Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
     }
 
+    private fun getChatroomFile(): File?{
+        val file = _chatUiState.value.loadedChatroomFile
+        return file
+    }
+
+    private fun getDecodedChatroomFile() : Chatroom{
+        val jsonFileContent = getChatroomFile()?.readText()?:""
+        val decoded = json.decodeFromString<Chatroom>(jsonFileContent)
+        return decoded
+    }
+
     fun updateSaveChatroom(){
         viewModelScope.launch(Dispatchers.IO) {
             val chatroom = _chatUiState.value.loadedChatroom
