@@ -7,6 +7,9 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,14 +20,14 @@ import data.GenericMessage
 
 @Composable
 fun MessageBubble(
-    message: GenericMessage
+    message: GenericMessage,
+    modifier: Modifier
 ){
     val isUser = message.role == "user"
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(bottom = if (!isUser) 90.dp else 0.dp)
             .padding(horizontal = 15.dp),
         contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
@@ -37,14 +40,24 @@ fun MessageBubble(
                 )
             }
         }else{
-            SelectionContainer {
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(8.dp),
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+            ElevatedCard(
+                modifier = Modifier.padding(vertical = 10.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                elevation = CardDefaults.elevatedCardElevation(
+                    defaultElevation = 10.dp
                 )
+            ) {
+                SelectionContainer {
+                    Text(
+                        text = message.content,
+                        modifier = Modifier.padding(8.dp),
+                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
-
         }
 
     }
