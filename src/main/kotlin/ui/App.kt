@@ -38,18 +38,18 @@ fun App(
                         mainViewModel = viewModel,
                         onCreateNewChatroom = {
                             chatViewModel.createChatroom()
-                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
+                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.id}")
                         },
                         onNavigateToChatroom = { (chatroom, file) ->
                             viewModel.selectChatroom(chatroom = chatroom)
-                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.createdAt}")
+                            navigator.navigate("/chatroom/${uiState.selectedChatroom?.id}")
                             chatViewModel.loadChatroom(chatroom = chatroom, file = file)
                         }
                     )
                 }
 
-                scene(route = "/chatroom/{createdAt}") {backStackEntry ->
-                    val createdAt = backStackEntry.path<Long>("createdAt")
+                scene(route = "/chatroom/{id}") {backStackEntry ->
+                    val createdAt = backStackEntry.path<Long>("id")
                     Chatroom(
                         chatUiState = chatUiState,
                         chatViewModel = chatViewModel,
