@@ -2,13 +2,9 @@ package ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -209,10 +205,16 @@ fun Chatroom(
                 modifier = Modifier.matchParentSize(),
                 reverseLayout = true
             ) {
-                items(items = chatUiState.messages){ message ->
+                itemsIndexed(items = chatUiState.messages) { index, message ->
+                    val isLastMessage = index == 0
+                    val isStreamingThisMessage = isLastMessage &&
+                            message.role == "assistant" &&
+                            chatUiState.isStreaming
+
                     MessageBubble(
                         message = message,
-                        modifier = Modifier.offset(y = -90.dp)
+                        modifier = Modifier.offset(y = -90.dp),
+                        isStreaming = isStreamingThisMessage
                     )
                 }
             }

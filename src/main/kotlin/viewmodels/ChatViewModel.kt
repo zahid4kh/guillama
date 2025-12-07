@@ -77,7 +77,8 @@ class ChatViewModel(
                 loadedChatroom = chatroom,
                 loadedChatroomFile = chatroomFile,
                 chatRoomTitle = chatroom.title,
-                selectedModel = chatroom.modelInThisChatroom
+                selectedModel = chatroom.modelInThisChatroom,
+                isStreaming = false
             )
         }
         loadMessages()
@@ -203,6 +204,7 @@ class ChatViewModel(
             addAssistantMessage(assistantMessage)
 
             viewModelScope.launch(Dispatchers.Main) {
+                _chatUiState.update { it.copy(isStreaming = true) }
                 loadMessages()
             }
 
@@ -219,6 +221,10 @@ class ChatViewModel(
                     }
                 }
             )
+
+            viewModelScope.launch(Dispatchers.Main) {
+                _chatUiState.update { it.copy(isStreaming = false) }
+            }
         }
     }
 
@@ -276,6 +282,7 @@ class ChatViewModel(
         val modelMessage: String? = null,
         val messages: List<GenericMessage> = emptyList(),
         val loadedChatroom: Chatroom? = null,
-        val loadedChatroomFile: File? = null
+        val loadedChatroomFile: File? = null,
+        val isStreaming: Boolean = false
     )
 }
