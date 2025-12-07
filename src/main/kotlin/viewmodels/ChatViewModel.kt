@@ -2,6 +2,7 @@ package viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import api.OllamaApi
 import data.Chatroom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,7 +19,8 @@ import java.time.format.DateTimeFormatter
 
 
 class ChatViewModel(
-    private val mainViewModel: MainViewModel
+    private val mainViewModel: MainViewModel,
+    private val api: OllamaApi
 ): ViewModel() {
     private val _chatUiState = MutableStateFlow(ChatUiState())
     val chatUiState = _chatUiState.asStateFlow()
