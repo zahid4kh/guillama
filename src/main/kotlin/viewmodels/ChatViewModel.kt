@@ -83,8 +83,14 @@ class ChatViewModel(
     }
 
     fun loadMessages(){
-        val messages = _chatUiState.value.loadedChatroom?.history?.messages ?: emptyList()
-        _chatUiState.update { it.copy(messages = messages.reversed()) }
+        val currentChatroom = getDecodedChatroomFile()
+        val messages = currentChatroom.history.messages
+        _chatUiState.update {
+            it.copy(
+                messages = messages.reversed(),
+                loadedChatroom = currentChatroom
+            )
+        }
     }
 
     private fun getChatroomFile(): File?{
@@ -92,7 +98,11 @@ class ChatViewModel(
     }
 
     private fun getDecodedChatroomFile() : Chatroom{
-        val jsonFileContent = getChatroomFile()?.readText() ?: ""
+        val file = getChatroomFile()
+        if (file == null || !file.exists()) {
+            return _chatUiState.value.loadedChatroom ?: Chatroom()
+        }
+        val jsonFileContent = file.readText()
         return json.decodeFromString<Chatroom>(jsonFileContent)
     }
 
@@ -108,6 +118,10 @@ class ChatViewModel(
                 )
                 file.writeText(json.encodeToString(updated))
                 showMessage("Chatroom updated!")
+
+                viewModelScope.launch(Dispatchers.Main) {
+                    loadMessages()
+                }
             }
         }
     }

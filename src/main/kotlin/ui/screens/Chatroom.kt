@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -37,6 +38,13 @@ fun Chatroom(
     chatUiState: ChatViewModel.ChatUiState,
     onNavigateBackToHome: () -> Unit
 ){
+    val listState = rememberLazyListState()
+    LaunchedEffect(chatUiState.messages.size) {
+        if (chatUiState.messages.isNotEmpty()) {
+            listState.animateScrollToItem(0)
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -196,6 +204,7 @@ fun Chatroom(
                 .padding(innerPadding)
         ){
             LazyColumn(
+                state = listState,
                 modifier = Modifier.matchParentSize(),
                 reverseLayout = true
             ) {
@@ -203,7 +212,6 @@ fun Chatroom(
                     MessageBubble(message)
                 }
             }
-
 
             MessageInputCard(
                 chatUiState = chatUiState,
