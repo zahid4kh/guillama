@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import api.OllamaApi
 import data.Chatroom
+import data.GenericMessage
+import data.PromptWithHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -106,6 +108,34 @@ class ChatViewModel(
                 showMessage("Chatroom updated!")
             }
         }
+    }
+
+    fun addUserPrompt(prompt: PromptWithHistory, model: String){
+        val decoded = getDecodedChatroomFile()
+        val messages = decoded.history.messages.toMutableList()
+        messages.add(prompt.messages.last())
+
+        val updatedHistory = decoded.history.copy(
+            model = model,
+            messages = messages.toList()
+        )
+        val updatedChatroom = decoded.copy(
+            history = updatedHistory
+        )
+        //writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
+    }
+
+    fun updateChatroom(chatroom: Chatroom, ollamaMessage: GenericMessage, model: String){
+        val decodedChatroom = getDecodedChatroomFile()
+        val messages = decodedChatroom.history.messages.toMutableList()
+        messages.add(ollamaMessage)
+
+        val updatedHistory = chatroom.history.copy(
+            model = model,
+            messages = messages.toList()
+        )
+        val updatedChatroom = decodedChatroom.copy(history = updatedHistory)
+        //writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
     }
 
     private suspend fun showMessage(message: String){
