@@ -28,6 +28,7 @@ class ChatViewModel(
 
     private val json = Json {
         prettyPrint = true
+        encodeDefaults = true
         ignoreUnknownKeys = true
     }
 
@@ -48,8 +49,8 @@ class ChatViewModel(
             val formattedDate = convertMillisToFormattedDateTime(createdAt)
             val chatroom = Chatroom(
                 title = formattedDate,
-                selectedModel = null,
-                createdAt = createdAt
+                modelInThisChatroom = null,
+                id = createdAt
             )
 
             val jsonChatroom = json.encodeToString(chatroom)
@@ -62,7 +63,7 @@ class ChatViewModel(
 
     fun loadChatroom(chatroom: Chatroom, file: File? = null){
         val chatroomFile = file ?: run {
-            val formattedDate = convertMillisToFormattedDateTime(chatroom.createdAt)
+            val formattedDate = convertMillisToFormattedDateTime(chatroom.id)
             File(chatsDir, "${formattedDate}.json")
         }
 
@@ -71,7 +72,7 @@ class ChatViewModel(
                 loadedChatroom = chatroom,
                 loadedChatroomFile = chatroomFile,
                 chatRoomTitle = chatroom.title,
-                selectedModel = chatroom.selectedModel
+                selectedModel = chatroom.modelInThisChatroom
             )
         }
         println("CHATVIEWMODEL: Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
@@ -85,7 +86,7 @@ class ChatViewModel(
             if (chatroom != null && file != null) {
                 val updated = chatroom.copy(
                     title = _chatUiState.value.chatRoomTitle,
-                    selectedModel = _chatUiState.value.selectedModel
+                    modelInThisChatroom = _chatUiState.value.selectedModel
                 )
                 file.writeText(json.encodeToString(updated))
                 println("Updated chatroom: $updated")
