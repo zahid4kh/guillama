@@ -3,6 +3,7 @@ package viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import api.OllamaApi
+import com.sun.org.apache.xml.internal.serializer.utils.Utils.messages
 import data.Chatroom
 import data.GenericMessage
 import data.OllamaStreamResponse
@@ -74,6 +75,8 @@ class ChatViewModel(
             File(chatsDir, "${formattedDate}.json")
         }
 
+
+
         _chatUiState.update {
             it.copy(
                 loadedChatroom = chatroom,
@@ -82,6 +85,11 @@ class ChatViewModel(
                 selectedModel = chatroom.modelInThisChatroom
             )
         }
+    }
+
+    fun loadMessages(){
+        val messages = _chatUiState.value.loadedChatroom?.history?.messages?:emptyList()
+        _chatUiState.update { it.copy(messages = messages.reversed()) }
     }
 
     private fun getChatroomFile(): File?{
@@ -145,46 +153,51 @@ class ChatViewModel(
     }
 
     fun sendMessage(){
-        val chatroomHistory = getDecodedChatroomFile().history
-        val messages = chatroomHistory.messages
+        viewModelScope.launch(Dispatchers.IO) {
 
-        val myNewMessage = GenericMessage(
-            role = "user",
-            content = _chatUiState.value.userMessage
-        )
+            val chatroomHistory = getDecodedChatroomFile().history
+            val messages = chatroomHistory.messages
 
-        messages.let { msgs ->
-            val prompt = PromptWithHistory(
-                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:"",
-                messages = msgs + myNewMessage
+            val myNewMessage = GenericMessage(
+                role = "user",
+                content = _chatUiState.value.userMessage
             )
 
-            val decodedStreamResponse = api.generateStream(
-                prompt = prompt,
-            )
-            println("================================================")
-            println("DECODED STREAM RESPONSE:\n")
-            decodedStreamResponse.forEach {
-                println(it)
+            messages.let { msgs ->
+                val prompt = PromptWithHistory(
+                    model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:"",
+                    messages = msgs + myNewMessage
+                )
+
+                val decodedStreamResponse = api.generateStream(
+                    prompt = prompt,
+                )
+                println("================================================")
+                println("DECODED STREAM RESPONSE:\n")
+                decodedStreamResponse.forEach {
+                    println(it)
+                }
+                println("================================================")
+
+                val ollamaSentence = formOllamaSentenceFromTokens(decodedStreamResponse)
+                val ollamaMessage = GenericMessage(
+                    role = "assistant",
+                    content = ollamaSentence
+                )
+                addUserPrompt(
+                    prompt = prompt,
+                    model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
+                )
+
+                val chatroom = getDecodedChatroomFile()
+                updateChatroom(
+                    chatroom = chatroom,
+                    ollamaMessage = ollamaMessage,
+                    model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
+                )
             }
-            println("================================================")
 
-            val ollamaSentence = formOllamaSentenceFromTokens(decodedStreamResponse)
-            val ollamaMessage = GenericMessage(
-                role = "assistant",
-                content = ollamaSentence
-            )
-            addUserPrompt(
-                prompt = prompt,
-                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
-            )
-
-            val chatroom = getDecodedChatroomFile()
-            updateChatroom(
-                chatroom = chatroom,
-                ollamaMessage = ollamaMessage,
-                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
-            )
+            _chatUiState.update { it.copy(userMessage = "") }
         }
     }
 
@@ -252,6 +265,7 @@ class ChatViewModel(
         val selectedModel: String? = null,
         val userMessage: String = "",
         val modelMessage: String? = null,
+        val messages: List<GenericMessage> = emptyList(),
         val loadedChatroom: Chatroom? = null,
         val loadedChatroomFile: File? = null
     )
