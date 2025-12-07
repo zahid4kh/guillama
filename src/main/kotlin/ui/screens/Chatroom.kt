@@ -223,11 +223,17 @@ fun Chatroom(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ){
-                        UserChatBubble(
-                            modifier = Modifier,
-                            onClick = { isUserBubbleClicked = !isUserBubbleClicked },
-                            isClicked = isUserBubbleClicked
-                        )
+                        AnimatedVisibility(
+                            visible = chatUiState.userMessage.isNotEmpty()
+                        ){
+                            UserChatBubble(
+                                modifier = Modifier,
+                                onClick = { isUserBubbleClicked = !isUserBubbleClicked },
+                                isClicked = isUserBubbleClicked,
+                                message = chatUiState.userMessage
+                            )
+                        }
+
                     }
                 }
 
@@ -236,11 +242,15 @@ fun Chatroom(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start
                     ){
-                        OllamaChatBubble(
-                            modifier = Modifier,
-                            onClick = { isOllamaBubbleClicked = !isOllamaBubbleClicked },
-                            isClicked = isOllamaBubbleClicked
-                        )
+                        AnimatedVisibility(visible = !chatUiState.modelMessage.isNullOrBlank()){
+                            OllamaChatBubble(
+                                modifier = Modifier,
+                                onClick = { isOllamaBubbleClicked = !isOllamaBubbleClicked },
+                                isClicked = isOllamaBubbleClicked,
+                                message = chatUiState.modelMessage?:""
+                            )
+                        }
+
                     }
                 }
             }
@@ -249,7 +259,8 @@ fun Chatroom(
             MessageInputCard(
                 chatUiState = chatUiState,
                 chatViewModel = chatViewModel,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onSendMessage = {  }
             )
         }
     }

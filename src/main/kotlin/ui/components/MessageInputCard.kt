@@ -34,7 +34,8 @@ import viewmodels.ChatViewModel
 fun MessageInputCard(
     chatViewModel: ChatViewModel,
     chatUiState: ChatViewModel.ChatUiState,
-    modifier: Modifier
+    modifier: Modifier,
+    onSendMessage: () -> Unit
 ){
     OutlinedCard(
         modifier = modifier
@@ -75,7 +76,7 @@ fun MessageInputCard(
                 state = rememberTooltipState()
             ){
                 IconButton(
-                    onClick = {  },
+                    onClick = { onSendMessage() },
                     modifier = Modifier
                         .padding(horizontal = 10.dp)
                         .clip(MaterialTheme.shapes.medium)
