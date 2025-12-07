@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +42,10 @@ fun MessageInputCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(3.dp)
-            .animateContentSize()
+            .animateContentSize(),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -64,6 +68,7 @@ fun MessageInputCard(
                     .animateContentSize(),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.secondaryContainer,
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             )
