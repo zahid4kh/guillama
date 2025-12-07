@@ -82,7 +82,6 @@ class ChatViewModel(
                 selectedModel = chatroom.modelInThisChatroom
             )
         }
-        println("CHATVIEWMODEL: Loaded chatroom: ${_chatUiState.value.loadedChatroom}")
     }
 
     private fun getChatroomFile(): File?{
@@ -107,13 +106,12 @@ class ChatViewModel(
                     modelInThisChatroom = _chatUiState.value.selectedModel
                 )
                 file.writeText(json.encodeToString(updated))
-                println("Updated chatroom: $updated")
                 showMessage("Chatroom updated!")
             }
         }
     }
 
-    fun addUserPrompt(prompt: PromptWithHistory, model: String){
+    private fun addUserPrompt(prompt: PromptWithHistory, model: String){
         val decoded = getDecodedChatroomFile()
         val messages = decoded.history.messages.toMutableList()
         messages.add(prompt.messages.last())
@@ -125,10 +123,10 @@ class ChatViewModel(
         val updatedChatroom = decoded.copy(
             history = updatedHistory
         )
-        //writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
+        writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
     }
 
-    fun updateChatroom(chatroom: Chatroom, ollamaMessage: GenericMessage, model: String){
+    private fun updateChatroom(chatroom: Chatroom, ollamaMessage: GenericMessage, model: String){
         val decodedChatroom = getDecodedChatroomFile()
         val messages = decodedChatroom.history.messages.toMutableList()
         messages.add(ollamaMessage)
@@ -138,7 +136,12 @@ class ChatViewModel(
             messages = messages.toList()
         )
         val updatedChatroom = decodedChatroom.copy(history = updatedHistory)
-        //writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
+        writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
+    }
+
+    private fun writeToChatroomFile(text: String){
+        val file = getChatroomFile()
+        file?.writeText(text)
     }
 
     fun sendMessage(){
@@ -147,7 +150,7 @@ class ChatViewModel(
 
         val myNewMessage = GenericMessage(
             role = "user",
-            content = "hey how is it going?"
+            content = _chatUiState.value.userMessage
         )
 
         messages.let { msgs ->
@@ -159,6 +162,12 @@ class ChatViewModel(
             val decodedStreamResponse = api.generateStream(
                 prompt = prompt,
             )
+            println("================================================")
+            println("DECODED STREAM RESPONSE:\n")
+            decodedStreamResponse.forEach {
+                println(it)
+            }
+            println("================================================")
 
             val ollamaSentence = formOllamaSentenceFromTokens(decodedStreamResponse)
             val ollamaMessage = GenericMessage(
@@ -206,7 +215,6 @@ class ChatViewModel(
 
     fun onSelectModel(modelName: String){
         _chatUiState.update { it.copy(selectedModel = modelName) }
-        println("Selected model: ${_chatUiState.value.selectedModel}")
         closeDropdown()
     }
 

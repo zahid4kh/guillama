@@ -27,9 +27,15 @@ class OllamaApi(
         prompt: PromptWithHistory
     ) : MutableList<Any> {
         val encodedPrompt = json.encodeToString(prompt)
-        val request = createRequest(encodedPrompt)
+        val request = Request.Builder()
+            .url(baseApiUrl)
+            .post(encodedPrompt.toRequestBody())
+            .build()
 
-        val response = getResponse(request)
+        println("REQUEST BODY:\n\n${request.toCurl()}")
+
+        val response = client.newCall(request).execute()
+        if(!response.isSuccessful) throw IOException("Unexpected code $response")
 
         val streamList = mutableListOf<String>()
         val decodedList = mutableListOf<Any>()
@@ -52,22 +58,5 @@ class OllamaApi(
         }
         return decodedList
 
-    }
-
-    private fun createRequest(bodyPrompt: String) : Request{
-        val request = Request.Builder()
-            .url(baseApiUrl)
-            .post(bodyPrompt.toRequestBody())
-            .build()
-
-        println("REQUEST BODY:\n\n${request.toCurl()}")
-
-        return request
-    }
-
-    private fun getResponse(request: Request) : Response {
-        val response = client.newCall(request).execute()
-        if(!response.isSuccessful) throw IOException("Unexpected code $response")
-        return response
     }
 }
