@@ -37,10 +37,6 @@ fun Chatroom(
     chatUiState: ChatViewModel.ChatUiState,
     onNavigateBackToHome: () -> Unit
 ){
-    LaunchedEffect(chatUiState.messages){
-        chatViewModel.loadMessages()
-    }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
