@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import api.OllamaApi
 import data.Chatroom
 import data.GenericMessage
+import data.OllamaStreamResponse
 import data.PromptWithHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,6 +19,8 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.collections.forEach
+import kotlin.collections.plus
 
 
 class ChatViewModel(
@@ -136,6 +139,56 @@ class ChatViewModel(
         )
         val updatedChatroom = decodedChatroom.copy(history = updatedHistory)
         //writeToChatroomFile(json.encodeToString<Chatroom>(updatedChatroom))
+    }
+
+    fun sendMessage(){
+        val chatroomHistory = getDecodedChatroomFile().history
+        val messages = chatroomHistory.messages
+
+        val myNewMessage = GenericMessage(
+            role = "user",
+            content = "hey how is it going?"
+        )
+
+        messages.let { msgs ->
+            val prompt = PromptWithHistory(
+                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:"",
+                messages = msgs + myNewMessage
+            )
+
+            val decodedStreamResponse = api.generateStream(
+                prompt = prompt,
+            )
+
+            val ollamaSentence = formOllamaSentenceFromTokens(decodedStreamResponse)
+            val ollamaMessage = GenericMessage(
+                role = "assistant",
+                content = ollamaSentence
+            )
+            addUserPrompt(
+                prompt = prompt,
+                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
+            )
+
+            val chatroom = getDecodedChatroomFile()
+            updateChatroom(
+                chatroom = chatroom,
+                ollamaMessage = ollamaMessage,
+                model = _chatUiState.value.loadedChatroom?.modelInThisChatroom?:""
+            )
+        }
+    }
+
+    private fun formOllamaSentenceFromTokens(list: List<Any>): String{
+        var sentence = ""
+        val streamedResponses = list.take(list.size-1) as List<OllamaStreamResponse>
+        streamedResponses.forEach { response ->
+            sentence += response.message.content
+        }
+        _chatUiState.update { it.copy(modelMessage = sentence) }
+
+        println("Ollama reply to my prompt:\n\n$sentence")
+        return sentence
     }
 
     private suspend fun showMessage(message: String){
