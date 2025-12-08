@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class OllamaFinalResponse(
     val model: String = "",
+    @SerialName("created_at")
     val createdAt: String = "",
     val message: OllamaMessage = OllamaMessage(),
     val done: Boolean = false,
