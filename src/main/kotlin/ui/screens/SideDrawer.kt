@@ -1,7 +1,9 @@
 package ui.screens
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
@@ -52,6 +56,8 @@ fun SideDrawer(
     onNavigateToChatroom: (Pair<Chatroom, File>) -> Unit,
     content: @Composable (() -> Unit)
 ){
+    val lazyListState = rememberLazyListState()
+
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet(
@@ -172,40 +178,52 @@ fun SideDrawer(
                     }
                 }
 
-                LazyColumn(
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                ) {
-                    items(items = uiState.listOfChatroomsWithFiles) { (chatroom, file) ->
-                        ElevatedCard(
-                            onClick = { onNavigateToChatroom(chatroom to file) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                .pointerHoverIcon(PointerIcon.Hand),
-                            colors = CardDefaults.elevatedCardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
-                            ) {
-                                Text(
-                                    text = chatroom.title,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    maxLines = 2
+                Box{
+                    LazyColumn(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        state = lazyListState
+                    ) {
+                        items(items = uiState.listOfChatroomsWithFiles) { (chatroom, file) ->
+                            ElevatedCard(
+                                onClick = { onNavigateToChatroom(chatroom to file) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .pointerHoverIcon(PointerIcon.Hand),
+                                colors = CardDefaults.elevatedCardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
                                 )
-                                if (chatroom.modelInThisChatroom != null) {
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(12.dp)
+                                ) {
                                     Text(
-                                        text = "Model: ${chatroom.modelInThisChatroom}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = chatroom.title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        maxLines = 2
                                     )
+                                    if (chatroom.modelInThisChatroom != null) {
+                                        Text(
+                                            text = "Model: ${chatroom.modelInThisChatroom}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+
+                    VerticalScrollbar(
+                        adapter = rememberScrollbarAdapter(lazyListState),
+                        modifier = Modifier
+                            .padding(horizontal = 5.dp, vertical = 4.dp)
+                            .align(Alignment.TopEnd)
+                            .pointerHoverIcon(PointerIcon.Hand)
+                    )
                 }
+
             }
         },
         drawerState = drawerState,
