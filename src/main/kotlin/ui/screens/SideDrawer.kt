@@ -1,7 +1,15 @@
 package ui.screens
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.VerticalScrollbar
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,14 +45,23 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import data.Chatroom
+import kotlinx.coroutines.delay
 import viewmodels.MainViewModel
 import java.io.File
 
@@ -179,21 +196,32 @@ fun SideDrawer(
                     }
                 }
 
+
                 Box{
                     LazyColumn(
                         modifier = Modifier.padding(horizontal = 8.dp),
                         state = lazyListState
                     ) {
                         items(items = uiState.listOfChatroomsWithFiles) { (chatroom, file) ->
+                            val interactionSource = remember { MutableInteractionSource() }
+                            val isItemHovered by interactionSource.collectIsHoveredAsState()
+                            var scale by remember { mutableStateOf(1f) }
+                            val animatedScale by animateFloatAsState(
+                                targetValue = if(isItemHovered) 1.1f else scale,
+                                animationSpec = tween(easing = LinearOutSlowInEasing)
+                            )
                             ElevatedCard(
                                 onClick = { onNavigateToChatroom(chatroom to file) },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .hoverable(interactionSource)
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .scale(animatedScale)
                                     .pointerHoverIcon(PointerIcon.Hand),
                                 colors = CardDefaults.elevatedCardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                shape = MaterialTheme.shapes.medium
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
                                     Text(
