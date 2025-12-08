@@ -4,7 +4,7 @@ kotlin = "2.2.21"
 kotlinxCoroutines = "1.10.2"
 kotlinxSerializationJson = "1.8.1"
 koin = "4.0.3"
-hotReload = "1.0.0"
+hotReload = "1.1.0-alpha02"
 slf4j = "2.0.12"
 
 [libraries]
