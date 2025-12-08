@@ -69,7 +69,7 @@ fun Chatroom(
                         }
 
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                             tooltip = {
                                 PlainTooltip { Text(if(chatUiState.isEditingTitle) "Save title" else "Rename title", style = MaterialTheme.typography.bodyMedium) }
                             },
@@ -108,7 +108,7 @@ fun Chatroom(
                     }
 
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                         tooltip = {
                             PlainTooltip { Text("Save changes", style = MaterialTheme.typography.bodyMedium) }
                         },
@@ -171,7 +171,7 @@ fun Chatroom(
                 },
                 navigationIcon = {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                         tooltip = {
                             PlainTooltip { Text("Go Home", style = MaterialTheme.typography.bodyMedium) }
                         },

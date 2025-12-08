@@ -32,6 +32,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -80,7 +81,7 @@ fun SideDrawer(
                     )
 
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                         tooltip = {
                             PlainTooltip { Text("Close menu", style = MaterialTheme.typography.bodyMedium) }
                         },
@@ -160,7 +161,7 @@ fun SideDrawer(
                     )
 
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                         tooltip = {
                             PlainTooltip { Text("Reload chatrooms", style = MaterialTheme.typography.bodyMedium) }
                         },
@@ -194,9 +195,7 @@ fun SideDrawer(
                                     containerColor = MaterialTheme.colorScheme.surface
                                 )
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(12.dp)
-                                ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
                                     Text(
                                         text = chatroom.title,
                                         style = MaterialTheme.typography.bodyMedium,

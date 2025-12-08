@@ -1,6 +1,6 @@
 [versions]
-composePlugin = "1.8.2"
-kotlin = "2.1.20"
+composePlugin = "1.9.3"
+kotlin = "2.2.21"
 kotlinxCoroutines = "1.10.2"
 kotlinxSerializationJson = "1.8.1"
 koin = "4.0.3"

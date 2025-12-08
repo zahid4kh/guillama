@@ -142,7 +142,7 @@ fun EntryScreen(
                 enter = scaleIn()
             ) {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                     tooltip = {
                         PlainTooltip { Text("Open menu", style = MaterialTheme.typography.bodyMedium) }
                     },
