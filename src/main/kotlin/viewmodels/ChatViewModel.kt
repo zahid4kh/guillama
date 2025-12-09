@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import api.OllamaApi
 import data.Chatroom
 import data.GenericMessage
+import data.OllamaFinalResponse
 import data.OllamaStreamResponse
 import data.PromptWithHistory
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +19,11 @@ import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlin.String
 
 class ChatViewModel(
     private val mainViewModel: MainViewModel,
@@ -27,6 +31,9 @@ class ChatViewModel(
 ): ViewModel() {
     private val _chatUiState = MutableStateFlow(ChatUiState())
     val chatUiState = _chatUiState.asStateFlow()
+
+    private val _lastMessageStats = MutableStateFlow(MessageStats())
+    val lastMessageStats = _lastMessageStats.asStateFlow()
 
     private val homeDir = System.getProperty("user.home")
     val chatsDir = File("$homeDir/.guillama/chats")
@@ -219,12 +226,49 @@ class ChatViewModel(
                     viewModelScope.launch(Dispatchers.Main) {
                         loadMessages()
                     }
+                },
+                onGetStreamSummary = { line ->
+                    val jsonList = mutableListOf<String>()
+                    jsonList.add(line)
+                    val lastLine = jsonList.last()
+                    println("OLLAMA FINAL RESPONSE STRING:\n$lastLine")
+                    val decodedLastLine = json.decodeFromString<OllamaFinalResponse>(lastLine)
+                    println("OLLAMA FINAL RESPONSE DECODED:\n$decodedLastLine")
+                    _lastMessageStats.update {
+                        it.copy(
+                            createdAt = isoTimestampToLocalFormat(decodedLastLine.createdAt, 1),
+                            totalDuration = formatDuration(decodedLastLine.totalDuration),
+                            loadDuration = formatDuration(decodedLastLine.loadDuration),
+                            promptEvalCount = decodedLastLine.promptEvalCount.toString(),
+                            promptEvalDuration = formatDuration(decodedLastLine.promptEvalDuration),
+                            evalCount = decodedLastLine.evalCount.toString(),
+                            evalDuration = formatDuration(decodedLastLine.evalDuration),
+                        )
+                    }
                 }
             )
 
             viewModelScope.launch(Dispatchers.Main) {
                 _chatUiState.update { it.copy(isStreaming = false) }
             }
+        }
+    }
+
+    private fun isoTimestampToLocalFormat(isoTimestamp: String, zoneOffsetHours: Int = 0): String {
+        val utc = OffsetDateTime.parse(isoTimestamp.replace("Z", "+00:00"))
+        val local = utc.withOffsetSameInstant(ZoneOffset.ofHours(zoneOffsetHours))
+        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy, HH:mm:ss")
+        return local.format(formatter)
+    }
+
+    fun nanosToSeconds(nanos: Long): Double = nanos / 1_000_000_000.0
+
+    fun formatDuration(nanos: Long): String {
+        val seconds = nanos / 1_000_000_000.0
+        return when {
+            seconds < 1 -> String.format("%.1f ms", seconds * 1000)
+            seconds < 60 -> String.format("%.3f s", seconds)
+            else -> String.format("%.1f s", seconds)
         }
     }
 
@@ -271,6 +315,10 @@ class ChatViewModel(
         _chatUiState.update { it.copy(chatRoomTitle = newTitle) }
     }
 
+    fun toggleMessageStats(){
+        _chatUiState.update { it.copy(showMessageStats = !it.showMessageStats) }
+    }
+
     data class ChatUiState(
         val availableModels: List<String> = emptyList(),
         val showModelSelectorDropdown: Boolean = false,
@@ -283,6 +331,17 @@ class ChatViewModel(
         val messages: List<GenericMessage> = emptyList(),
         val loadedChatroom: Chatroom? = null,
         val loadedChatroomFile: File? = null,
-        val isStreaming: Boolean = false
+        val isStreaming: Boolean = false,
+        val showMessageStats: Boolean = false
+    )
+
+    data class MessageStats(
+        val createdAt: String = "",
+        val totalDuration: String = "",
+        val loadDuration: String = "",
+        val promptEvalCount: String = "",
+        val promptEvalDuration: String = "",
+        val evalCount: String = "",
+        val evalDuration: String = "",
     )
 }

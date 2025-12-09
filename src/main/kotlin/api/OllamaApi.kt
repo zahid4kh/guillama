@@ -21,7 +21,8 @@ class OllamaApi {
 
     fun generateStream(
         prompt: PromptWithHistory,
-        onToken: (String) -> Unit
+        onToken: (String) -> Unit,
+        onGetStreamSummary: (line: String) -> Unit
     ) {
         val encodedPrompt = json.encodeToString(prompt)
         val request = Request.Builder()
@@ -40,6 +41,9 @@ class OllamaApi {
                 val streamResponse = json.decodeFromString<OllamaStreamResponse>(line)
                 if (!streamResponse.done) {
                     onToken(streamResponse.message.content)
+                }
+                if(streamResponse.done){
+                    onGetStreamSummary(line)
                 }
             } catch (e: Exception) {
                 println("Error parsing stream response: $e")

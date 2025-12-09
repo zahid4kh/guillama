@@ -16,6 +16,8 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +43,7 @@ fun Chatroom(
             listState.animateScrollToItem(0)
         }
     }
+    val messageStats by chatViewModel.lastMessageStats.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -214,7 +217,11 @@ fun Chatroom(
                     MessageBubble(
                         message = message,
                         modifier = Modifier.offset(y = -90.dp),
-                        isStreaming = isStreamingThisMessage
+                        isStreaming = isStreamingThisMessage,
+                        chatUiState = chatUiState,
+                        chatViewModel = chatViewModel,
+                        isLastMessage = isLastMessage,
+                        stats = messageStats
                     )
                 }
             }
