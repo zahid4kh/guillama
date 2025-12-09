@@ -3,6 +3,7 @@ package ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,18 +24,16 @@ import androidx.compose.ui.unit.dp
 import data.GenericMessage
 import ui.theme.getJetbrainsMonoFamily
 import viewmodels.ChatViewModel
-
 @Composable
 fun MessageBubble(
     message: GenericMessage,
     modifier: Modifier,
     chatUiState: ChatViewModel.ChatUiState,
     chatViewModel: ChatViewModel,
-    isStreaming: Boolean = false,
-    isLastMessage: Boolean,
-    stats: ChatViewModel.MessageStats
+    isStreaming: Boolean = false
 ){
     val isUser = message.role == "user"
+    val messageStats = if (!isUser) chatViewModel.getStatsForMessage(message) else null
 
     Box(
         modifier = modifier
@@ -56,10 +55,17 @@ fun MessageBubble(
                     .padding(vertical = 10.dp)
                     .clip(MaterialTheme.shapes.medium)
                     .clickable(
-                        onClick = { chatViewModel.toggleMessageStats() },
-                        enabled = isLastMessage
+                        onClick = {
+                            if (messageStats != null) {
+                                chatViewModel.toggleMessageStats()
+                            }
+                        },
+                        enabled = messageStats != null
                     )
-                    .pointerHoverIcon(if(isLastMessage) PointerIcon.Hand else PointerIcon.Default),
+                    .animateContentSize(
+                        animationSpec = spring()
+                    )
+                    .pointerHoverIcon(if(messageStats != null) PointerIcon.Hand else PointerIcon.Default),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -71,68 +77,78 @@ fun MessageBubble(
                         modifier = Modifier.padding(8.dp)
                     )
                 } else {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .animateContentSize(animationSpec = spring())
+                    ) {
                         Text(
                             text = message.content,
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
 
-                        AnimatedVisibility(
-                            visible = chatUiState.showMessageStats && isLastMessage
-                        ){
-                            Column(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .clip(MaterialTheme.shapes.medium)
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                                    .padding(5.dp)
-                            ) {
-                                Text(
-                                    text = "Created at: ${stats.createdAt}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                        if (messageStats != null) {
+                            AnimatedVisibility(
+                                visible = chatUiState.showMessageStats
+                            ){
+                                Column(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                                        .padding(5.dp)
+                                ) {
+                                    Text(
+                                        text = "Created at: ${messageStats.createdAt}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Total Duration: ${stats.totalDuration}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Responded in: ${messageStats.totalDuration}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Load Duration: ${stats.loadDuration}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Model loaded in: ${messageStats.loadDuration}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Prompt Eval. Count: ${stats.promptEvalCount}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Input token count: ${messageStats.promptEvalCount}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Prompt Eval. Duration: ${stats.promptEvalDuration}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Input evaluated in: ${messageStats.promptEvalDuration}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Eval. Count: ${stats.evalCount}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Output token count: ${messageStats.evalCount}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
 
-                                Text(
-                                    text = "Eval. Duration: ${stats.evalDuration}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
+                                    Text(
+                                        text = "Output generated in: ${messageStats.evalDuration}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
+
+                                    Text(
+                                        text = "Speed: ${messageStats.generaationSpeed} token/s",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontFamily = getJetbrainsMonoFamily()
+                                    )
+                                }
                             }
                         }
                     }
-
                 }
             }
         }

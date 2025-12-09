@@ -219,9 +219,7 @@ fun Chatroom(
                         modifier = Modifier.offset(y = -90.dp),
                         isStreaming = isStreamingThisMessage,
                         chatUiState = chatUiState,
-                        chatViewModel = chatViewModel,
-                        isLastMessage = isLastMessage,
-                        stats = messageStats
+                        chatViewModel = chatViewModel
                     )
                 }
             }

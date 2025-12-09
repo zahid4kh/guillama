@@ -228,21 +228,26 @@ class ChatViewModel(
                     }
                 },
                 onGetStreamSummary = { line ->
-                    val jsonList = mutableListOf<String>()
-                    jsonList.add(line)
-                    val lastLine = jsonList.last()
-                    println("OLLAMA FINAL RESPONSE STRING:\n$lastLine")
-                    val decodedLastLine = json.decodeFromString<OllamaFinalResponse>(lastLine)
-                    println("OLLAMA FINAL RESPONSE DECODED:\n$decodedLastLine")
-                    _lastMessageStats.update {
-                        it.copy(
-                            createdAt = isoTimestampToLocalFormat(decodedLastLine.createdAt, 1),
-                            totalDuration = formatDuration(decodedLastLine.totalDuration),
-                            loadDuration = formatDuration(decodedLastLine.loadDuration),
-                            promptEvalCount = decodedLastLine.promptEvalCount.toString(),
-                            promptEvalDuration = formatDuration(decodedLastLine.promptEvalDuration),
-                            evalCount = decodedLastLine.evalCount.toString(),
-                            evalDuration = formatDuration(decodedLastLine.evalDuration),
+                    val decodedLastLine = json.decodeFromString<OllamaFinalResponse>(line)
+                    val messageHash = fullResponse.hashCode().toString()
+                    println("$decodedLastLine")
+
+                    val stats = MessageStats(
+                        messageHash = messageHash,
+                        createdAt = isoTimestampToLocalFormat(decodedLastLine.createdAt, 1),
+                        totalDuration = formatDuration(decodedLastLine.totalDuration),
+                        loadDuration = formatDuration(decodedLastLine.loadDuration),
+                        promptEvalCount = decodedLastLine.promptEvalCount.toString(),
+                        promptEvalDuration = formatDuration(decodedLastLine.promptEvalDuration),
+                        evalCount = decodedLastLine.evalCount.toString(),
+                        evalDuration = formatDuration(decodedLastLine.evalDuration),
+                        generaationSpeed = calculateTokensPerSecond(decodedLastLine.evalCount, decodedLastLine.evalDuration)
+                    )
+                    println("STATS:\n$stats")
+
+                    _chatUiState.update { state ->
+                        state.copy(
+                            currentSessionStats = state.currentSessionStats + (messageHash to stats)
                         )
                     }
                 }
@@ -252,6 +257,18 @@ class ChatViewModel(
                 _chatUiState.update { it.copy(isStreaming = false) }
             }
         }
+    }
+
+    fun getStatsForMessage(message: GenericMessage): MessageStats? {
+        val messageHash = message.content.hashCode().toString()
+        return _chatUiState.value.currentSessionStats[messageHash]
+    }
+
+    private fun calculateTokensPerSecond(tokenCount: Int, durationNanos: Long): String {
+        if (durationNanos == 0L) return "0.0"
+
+        val tokensPerSecond = (tokenCount.toDouble() * 1_000_000_000.0) / durationNanos.toDouble()
+        return String.format("%.1f", tokensPerSecond)
     }
 
     private fun isoTimestampToLocalFormat(isoTimestamp: String, zoneOffsetHours: Int = 0): String {
@@ -332,10 +349,12 @@ class ChatViewModel(
         val loadedChatroom: Chatroom? = null,
         val loadedChatroomFile: File? = null,
         val isStreaming: Boolean = false,
-        val showMessageStats: Boolean = false
+        val showMessageStats: Boolean = false,
+        val currentSessionStats: Map<String, MessageStats> = emptyMap()
     )
 
     data class MessageStats(
+        val messageHash: String = "",
         val createdAt: String = "",
         val totalDuration: String = "",
         val loadDuration: String = "",
@@ -343,5 +362,6 @@ class ChatViewModel(
         val promptEvalDuration: String = "",
         val evalCount: String = "",
         val evalDuration: String = "",
+        val generaationSpeed: String = ""
     )
 }
