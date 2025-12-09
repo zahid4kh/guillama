@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.IOException
+import java.net.SocketTimeoutException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -249,6 +251,22 @@ class ChatViewModel(
                         state.copy(
                             currentSessionStats = state.currentSessionStats + (messageHash to stats)
                         )
+                    }
+                },
+                onError = { error ->
+                    viewModelScope.launch(Dispatchers.Main) {
+                        _chatUiState.update { it.copy(isStreaming = false) }
+
+                        val errorMessage = when (error) {
+                            is SocketTimeoutException -> "⚠️ Request timed out. Please try again."
+                            is IOException -> "⚠️ Network error. Check your Ollama connection."
+                            else -> "⚠️ An error occurred: ${error.message}"
+                        }
+
+                        updateLastAssistantMessage(errorMessage)
+                        loadMessages()
+
+                        showMessage("Error: ${error.javaClass.simpleName}")
                     }
                 }
             )
