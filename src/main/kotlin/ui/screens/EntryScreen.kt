@@ -4,24 +4,19 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.ChatBubble
-import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import data.Chatroom
 import ui.components.FeaturesSection
 import ui.components.ModelAvailabilityCountCard
+import ui.theme.getJetbrainsMonoFamily
 import viewmodels.MainViewModel
 import java.io.File
 
@@ -167,19 +163,32 @@ fun EntryScreen(
     if (uiState.modelListDialogShown) {
         AlertDialog(
             onDismissRequest = { mainViewModel.closeModelListDialog() },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { mainViewModel.closeModelListDialog() },
-                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-                ) {
-                    Text(
-                        text = "Close",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
+            confirmButton = {
+                Row {
+                    OutlinedButton(
+                        onClick = { mainViewModel.refreshModels() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = "Refresh",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = "Refresh")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(
+                        onClick = { mainViewModel.closeModelListDialog() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ) {
+                        Text(
+                            text = "Close",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             },
-            confirmButton = {},
             title = {
                 Text(
                     text = "Available Models",
@@ -188,26 +197,57 @@ fun EntryScreen(
             },
             text = {
                 LazyColumn(
-                    modifier = Modifier.heightIn(max = 400.dp)
+                    modifier = Modifier.heightIn(max = 500.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.modelsLibrary) { model ->
+                    items(uiState.availableModels) { model ->
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 2.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
-                            Text(
-                                text = model,
-                                modifier = Modifier.padding(12.dp),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Column(
+                                modifier = Modifier.padding(12.dp)
+                            ) {
+                                Text(
+                                    text = model.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Size: ${formatBytes(model.size)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontFamily = getJetbrainsMonoFamily()
+                                )
+                                Text(
+                                    text = "Family: ${model.details.family}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontFamily = getJetbrainsMonoFamily()
+                                )
+                                Text(
+                                    text = "Parameters: ${model.details.parameterSize}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontFamily = getJetbrainsMonoFamily()
+                                )
+                            }
                         }
                     }
                 }
             }
         )
+    }
+}
+
+private fun formatBytes(bytes: Long): String {
+    val kb = 1024.0
+    val mb = kb * 1024
+    val gb = mb * 1024
+
+    return when {
+        bytes >= gb -> String.format("%.1f GB", bytes / gb)
+        bytes >= mb -> String.format("%.1f MB", bytes / mb)
+        bytes >= kb -> String.format("%.1f KB", bytes / kb)
+        else -> "$bytes bytes"
     }
 }

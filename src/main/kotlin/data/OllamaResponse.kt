@@ -57,3 +57,32 @@ data class Chatroom(
     val modelInThisChatroom: String? = null,
     val history: PromptWithHistory = PromptWithHistory()
 )
+
+@Serializable
+data class ModelDetails(
+    @SerialName("parent_model")
+    val parentModel: String = "",
+    val format: String = "",
+    val family: String = "",
+    val families: List<String>? = null,
+    @SerialName("parameter_size")
+    val parameterSize: String = "",
+    @SerialName("quantization_level")
+    val quantizationLevel: String = ""
+)
+
+@Serializable
+data class OllamaModel(
+    val name: String = "",
+    val model: String = "",
+    @SerialName("modified_at")
+    val modifiedAt: String = "",
+    val size: Long = 0,
+    val digest: String = "",
+    val details: ModelDetails = ModelDetails()
+)
+
+@Serializable
+data class ModelsResponse(
+    val models: List<OllamaModel> = emptyList()
+)

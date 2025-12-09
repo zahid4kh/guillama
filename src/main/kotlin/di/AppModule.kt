@@ -8,7 +8,7 @@ import viewmodels.MainViewModel
 
 val appModule = module {
     single { Database() }
-    single { MainViewModel(get()) }
+    single { MainViewModel(get(), get()) }
     single { ChatViewModel(get(), get()) }
     single { OllamaApi() }
 }

@@ -13,6 +13,7 @@ import org.jetbrains.compose.resources.painterResource
 import ui.theme.AppTheme
 import java.awt.Dimension
 import org.koin.core.context.startKoin
+import org.koin.core.parameter.parametersOf
 import org.koin.java.KoinJavaComponent.getKoin
 import ui.App
 import viewmodels.ChatViewModel
@@ -24,10 +25,10 @@ fun main() = application {
         modules(appModule)
     }
 
-    val viewModel = getKoin().get<MainViewModel>()
+    val api = OllamaApi()
+    val viewModel = getKoin().get<MainViewModel> { parametersOf(api) }
     val chatViewModel = getKoin().get<ChatViewModel>()
     val windowState = rememberWindowState(size = DpSize(800.dp, 600.dp))
-    val api = OllamaApi()
 
     Window(
         onCloseRequest = ::exitApplication,

@@ -1,5 +1,6 @@
 package api
 
+import data.ModelsResponse
 import data.OllamaStreamResponse
 import data.PromptWithHistory
 import kotlinx.serialization.json.Json
@@ -21,6 +22,7 @@ class OllamaApi {
 
     private val ollamaUrl = "http://localhost:11434"
     private val baseApiUrl = "$ollamaUrl/api/chat"
+    private val tagsApiUrl = "$ollamaUrl/api/tags"
 
     private val json = Json {
         prettyPrint = true
@@ -82,6 +84,30 @@ class OllamaApi {
         } catch (e: Exception) {
             println("Unexpected error: $e")
             onError(e)
+        }
+    }
+
+    fun getAvailableModels(): ModelsResponse? {
+        return try {
+            val request = Request.Builder()
+                .url(tagsApiUrl)
+                .get()
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            if (!response.isSuccessful) {
+                println("Failed to fetch models: HTTP ${response.code}: ${response.message}")
+                return null
+            }
+
+            response.body?.use { responseBody ->
+                val responseString = responseBody.string()
+                json.decodeFromString<ModelsResponse>(responseString)
+            }
+        } catch (e: Exception) {
+            println("Error fetching models: $e")
+            null
         }
     }
 }
