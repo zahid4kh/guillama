@@ -6,7 +6,10 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import api.OllamaApi
 import di.appModule
+import guillaama.resources.Res
+import guillaama.resources.aappIcon
 import moe.tlaster.precompose.ProvidePreComposeLocals
+import org.jetbrains.compose.resources.painterResource
 import ui.theme.AppTheme
 import java.awt.Dimension
 import org.koin.core.context.startKoin
@@ -31,7 +34,7 @@ fun main() = application {
         state = windowState,
         alwaysOnTop = true,
         title = "GUILLAMA",
-        icon = null
+        icon = painterResource(Res.drawable.aappIcon)
     ) {
         window.minimumSize = Dimension(800, 600)
 
