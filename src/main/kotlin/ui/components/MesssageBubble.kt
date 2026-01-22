@@ -91,61 +91,7 @@ fun MessageBubble(
                             AnimatedVisibility(
                                 visible = chatUiState.showMessageStats
                             ){
-                                Column(
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .clip(MaterialTheme.shapes.medium)
-                                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                                        .padding(5.dp)
-                                ) {
-                                    Text(
-                                        text = "Created at: ${messageStats.createdAt}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Responded in: ${messageStats.totalDuration}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Model loaded in: ${messageStats.loadDuration}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Input token count: ${messageStats.promptEvalCount}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Input evaluated in: ${messageStats.promptEvalDuration}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Output token count: ${messageStats.evalCount}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Output generated in: ${messageStats.evalDuration}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-
-                                    Text(
-                                        text = "Speed: ${messageStats.generaationSpeed} token/s",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontFamily = getJetbrainsMonoFamily()
-                                    )
-                                }
+                                MessageStats(messageStats)
                             }
                         }
                     }
