@@ -1,9 +1,12 @@
 package ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +28,7 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Update
@@ -73,6 +77,7 @@ fun SideDrawer(
     mainViewModel: MainViewModel,
     drawerState: DrawerState,
     onNavigateToChatroom: (Pair<Chatroom, File>) -> Unit,
+    onDeleteChatroom: (Pair<Chatroom, File>) -> Unit,
     content: @Composable (() -> Unit)
 ){
     val lazyListState = rememberLazyListState()
@@ -236,21 +241,45 @@ fun SideDrawer(
                                 ),
                                 shape = MaterialTheme.shapes.medium
                             ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
-                                    Text(
-                                        text = chatroom.title,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        maxLines = 2
-                                    )
-                                    if (chatroom.modelInThisChatroom != null) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ){
+                                    Column(modifier = Modifier.padding(12.dp)) {
                                         Text(
-                                            text = "Model: ${chatroom.modelInThisChatroom}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            text = chatroom.title,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 2
                                         )
+                                        if (chatroom.modelInThisChatroom != null) {
+                                            Text(
+                                                text = "Model: ${chatroom.modelInThisChatroom}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
+
+                                    AnimatedVisibility(
+                                        visible = isItemHovered,
+                                        enter = scaleIn(animationSpec = tween(delayMillis = 300)),
+                                        exit = scaleOut(animationSpec = tween(delayMillis = 300))
+                                    ){
+                                        IconButton(
+                                            onClick = { onDeleteChatroom(chatroom to file) }
+                                        ){
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete chatroom",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    }
+
                                 }
+
                             }
                         }
                     }

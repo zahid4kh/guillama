@@ -155,6 +155,37 @@ class MainViewModel(
         }
     }
 
+    fun deleteChatroom(pair: Pair<Chatroom, File>){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val (chatroom, file) = pair
+
+                if (file.exists()) {
+                    val deleted = file.delete()
+                    if (deleted) {
+                        println("Successfully deleted chatroom: ${chatroom.title}")
+                    } else {
+                        println("Failed to delete file: ${file.name}")
+                        return@launch
+                    }
+                }
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        listOfChatroomsWithFiles = currentState.listOfChatroomsWithFiles.filter { it != pair }
+                    )
+                }
+
+                if (_uiState.value.selectedChatroom?.id == chatroom.id) {
+                    _uiState.update { it.copy(selectedChatroom = null) }
+                }
+
+            } catch (e: Exception) {
+                println("Error deleting chatroom: $e")
+            }
+        }
+    }
+
     data class UiState(
         val darkMode: Boolean = false,
         val modelsLibrary: List<String> = emptyList(),

@@ -51,7 +51,8 @@ fun EntryScreen(
         uiState = uiState,
         mainViewModel = mainViewModel,
         drawerState = drawerState,
-        onNavigateToChatroom = onNavigateToChatroom
+        onNavigateToChatroom = onNavigateToChatroom,
+        onDeleteChatroom = { pair -> mainViewModel.deleteChatroom(pair) }
     ){
         Box(
             modifier = Modifier
