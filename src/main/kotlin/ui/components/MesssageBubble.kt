@@ -5,6 +5,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import data.GenericMessage
 import ui.theme.getJetbrainsMonoFamily
 import viewmodels.ChatViewModel
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageBubble(
     message: GenericMessage,
@@ -49,19 +52,28 @@ fun MessageBubble(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.End
             ) {
-                IconButton(
-                    onClick = { chatViewModel.copyMessage(message.content) },
-                    modifier = Modifier
-                        .size(30.dp)
-                        .pointerHoverIcon(PointerIcon.Hand),
+                TooltipBox(
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Left),
+                    tooltip = {
+                        PlainTooltip { Text("Copy my message", style = MaterialTheme.typography.bodySmall) }
+                    },
+                    state = rememberTooltipState()
                 ){
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Copy content",
+                    IconButton(
+                        onClick = { chatViewModel.copyMessage(message.content) },
                         modifier = Modifier
-                            .size(15.dp)
-                    )
+                            .size(30.dp)
+                            .pointerHoverIcon(PointerIcon.Hand),
+                    ){
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Copy content",
+                            modifier = Modifier
+                                .size(15.dp)
+                        )
+                    }
                 }
+
                 OutlinedCard{
                     SelectionContainer {
                         Text(
@@ -75,19 +87,35 @@ fun MessageBubble(
 
         }else{
             Column{
-                IconButton(
-                    onClick = { chatViewModel.copyMessage(message.content) },
-                    modifier = Modifier
-                        .size(30.dp)
-                        .pointerHoverIcon(PointerIcon.Hand),
+                AnimatedVisibility(
+                    visible = !isStreaming,
+                    enter = scaleIn(),
+                    exit = scaleOut()
                 ){
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Copy content",
-                        modifier = Modifier
-                            .size(15.dp)
-                    )
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Right),
+                        tooltip = {
+                            PlainTooltip { Text("Copy model message", style = MaterialTheme.typography.bodySmall) }
+                        },
+                        state = rememberTooltipState()
+                    ){
+                        IconButton(
+                            onClick = { chatViewModel.copyMessage(message.content) },
+                            modifier = Modifier
+                                .size(30.dp)
+                                .pointerHoverIcon(PointerIcon.Hand),
+                        ){
+                            Icon(
+                                imageVector = Icons.Outlined.ContentCopy,
+                                contentDescription = "Copy content",
+                                modifier = Modifier
+                                    .size(15.dp)
+                            )
+                        }
+                    }
+
                 }
+
 
                 Card(
                     modifier = Modifier

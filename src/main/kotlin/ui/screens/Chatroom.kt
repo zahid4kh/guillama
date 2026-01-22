@@ -198,15 +198,16 @@ fun Chatroom(
             )
         }
     ) { innerPadding ->
-        Box(
+        Column (
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ){
             LazyColumn(
                 state = listState,
-                modifier = Modifier.matchParentSize(),
-                reverseLayout = true
+                modifier = Modifier
+                    .weight(1f),
+                reverseLayout = true,
             ) {
                 itemsIndexed(items = chatUiState.messages) { index, message ->
                     val isLastMessage = index == 0
@@ -216,7 +217,7 @@ fun Chatroom(
 
                     MessageBubble(
                         message = message,
-                        modifier = Modifier.offset(y = -90.dp),
+                        modifier = Modifier,
                         isStreaming = isStreamingThisMessage,
                         chatUiState = chatUiState,
                         chatViewModel = chatViewModel
@@ -227,7 +228,7 @@ fun Chatroom(
             MessageInputCard(
                 chatUiState = chatUiState,
                 chatViewModel = chatViewModel,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.padding(5.dp),
                 onSendMessage = { chatViewModel.sendMessage() }
             )
         }
