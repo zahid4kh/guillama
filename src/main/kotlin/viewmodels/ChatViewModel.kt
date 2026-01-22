@@ -2,6 +2,7 @@ package viewmodels
 
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import api.OllamaApi
@@ -190,10 +191,10 @@ class ChatViewModel(
     }
 
     fun sendMessage(){
-        val userMessageText = _chatUiState.value.userMessage.trim()
+        val userMessageText = _chatUiState.value.userMessage.text.trim()
         if(userMessageText.isEmpty()) return
 
-        _chatUiState.update { it.copy(userMessage = "") }
+        _chatUiState.update { it.copy(userMessage = TextFieldValue("")) }
 
         viewModelScope.launch(Dispatchers.IO) {
             val userMessage = GenericMessage(
@@ -339,7 +340,7 @@ class ChatViewModel(
         _chatUiState.update { it.copy(showModelSelectorDropdown = false) }
     }
 
-    fun onUserMessageTyped(text: String){
+    fun onUserMessageTyped(text: TextFieldValue){
         _chatUiState.update { it.copy(userMessage = text) }
     }
 
@@ -381,7 +382,7 @@ class ChatViewModel(
         val chatRoomTitle: String = "nothing",
         val message: String = "",
         val selectedModel: String? = null,
-        val userMessage: String = "",
+        val userMessage: TextFieldValue = TextFieldValue(""),
         val modelMessage: String? = null,
         val messages: List<GenericMessage> = emptyList(),
         val loadedChatroom: Chatroom? = null,

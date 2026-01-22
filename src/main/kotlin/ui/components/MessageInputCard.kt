@@ -88,7 +88,7 @@ fun MessageInputCard(
                         .clip(MaterialTheme.shapes.medium)
                         .pointerHoverIcon(PointerIcon.Hand)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                    enabled = chatUiState.selectedModel != null && chatUiState.userMessage.isNotEmpty()
+                    enabled = chatUiState.selectedModel != null && chatUiState.userMessage.text.isNotEmpty()
                 ){
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Send,
