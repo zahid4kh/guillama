@@ -26,6 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
@@ -66,6 +73,15 @@ fun MessageInputCard(
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
+                    .onKeyEvent{ keyEvent ->
+                        if(keyEvent.isCtrlPressed && keyEvent.key == Key.Enter
+                            && keyEvent.type == KeyEventType.KeyDown && chatUiState.userMessage.text.isNotEmpty()){
+                            onSendMessage()
+                            true
+                        }else{
+                            false
+                        }
+                    }
                     .animateContentSize(),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
