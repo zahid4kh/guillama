@@ -1,5 +1,7 @@
 package viewmodels
 
+import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.ui.platform.Clipboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import api.OllamaApi
@@ -16,6 +18,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.awt.Desktop
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import java.awt.datatransfer.Transferable
 import java.io.File
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -352,6 +358,20 @@ class ChatViewModel(
 
     fun toggleMessageStats(){
         _chatUiState.update { it.copy(showMessageStats = !it.showMessageStats) }
+    }
+
+    fun copyMessage(content: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+            val contents = StringSelection(content)
+
+            try{
+                clipboard.setContents(contents, null)
+                showMessage("Message copied")
+            }catch (e: Exception){
+                showMessage("Couldn't copy the message: ${e.localizedMessage}")
+            }
+        }
     }
 
     data class ChatUiState(

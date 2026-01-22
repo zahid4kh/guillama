@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,61 +45,101 @@ fun MessageBubble(
         contentAlignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         if(isUser){
-            OutlinedCard{
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(8.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }else{
-            Card(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable(
-                        onClick = {
-                            if (messageStats != null) {
-                                chatViewModel.toggleMessageStats()
-                            }
-                        },
-                        enabled = messageStats != null
-                    )
-                    .animateContentSize(
-                        animationSpec = spring()
-                    )
-                    .pointerHoverIcon(if(messageStats != null) PointerIcon.Hand else PointerIcon.Default),
-                colors = CardDefaults.elevatedCardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.End
             ) {
-                if (isStreaming) {
-                    AnimatedTokenText(
-                        text = message.content,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                } else {
-                    Column(
+                IconButton(
+                    onClick = { chatViewModel.copyMessage(message.content) },
+                    modifier = Modifier
+                        .size(30.dp)
+                        .pointerHoverIcon(PointerIcon.Hand),
+                ){
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copy content",
                         modifier = Modifier
-                            .animateContentSize(animationSpec = spring())
-                    ) {
+                            .size(15.dp)
+                    )
+                }
+                OutlinedCard{
+                    SelectionContainer {
                         Text(
                             text = message.content,
                             modifier = Modifier.padding(8.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
+                    }
+                }
+            }
 
-                        if (messageStats != null) {
-                            AnimatedVisibility(
-                                visible = chatUiState.showMessageStats
-                            ){
-                                MessageStats(messageStats)
+        }else{
+            Column{
+                IconButton(
+                    onClick = { chatViewModel.copyMessage(message.content) },
+                    modifier = Modifier
+                        .size(30.dp)
+                        .pointerHoverIcon(PointerIcon.Hand),
+                ){
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copy content",
+                        modifier = Modifier
+                            .size(15.dp)
+                    )
+                }
+
+                Card(
+                    modifier = Modifier
+                        .padding(bottom = 10.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable(
+                            onClick = {
+                                if (messageStats != null) {
+                                    chatViewModel.toggleMessageStats()
+                                }
+                            },
+                            enabled = messageStats != null
+                        )
+                        .animateContentSize(
+                            animationSpec = spring()
+                        )
+                        .pointerHoverIcon(if(messageStats != null) PointerIcon.Hand else PointerIcon.Default),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                ) {
+                    if (isStreaming) {
+                        AnimatedTokenText(
+                            text = message.content,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .animateContentSize(animationSpec = spring())
+                        ) {
+                            SelectionContainer {
+                                Text(
+                                    text = message.content,
+                                    modifier = Modifier.padding(8.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+
+                            if (messageStats != null) {
+                                AnimatedVisibility(
+                                    visible = chatUiState.showMessageStats
+                                ){
+                                    MessageStats(messageStats)
+                                }
                             }
                         }
                     }
                 }
             }
+
         }
     }
 }
