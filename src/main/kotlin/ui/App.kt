@@ -1,6 +1,5 @@
 package ui
 
-import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -13,11 +12,9 @@ import moe.tlaster.precompose.navigation.path
 import moe.tlaster.precompose.navigation.rememberNavigator
 import ui.screens.Chatroom
 import viewmodels.ChatViewModel
-import java.io.File
 
 
 @Composable
-@Preview
 fun App(
     viewModel: MainViewModel,
     chatViewModel: ChatViewModel
