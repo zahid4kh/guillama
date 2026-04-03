@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,7 +78,10 @@ fun Chatroom(
                             state = rememberTooltipState()
                         ){
                             IconButton(
-                                onClick = { chatViewModel.handleEditSaveTitle() }
+                                onClick = {
+                                    if (chatUiState.isEditingTitle) chatViewModel.confirmTitle()
+                                    else chatViewModel.toggleEditTitle()
+                                }
                             ){
                                 Icon(
                                     imageVector = if(chatUiState.isEditingTitle) Icons.Default.CheckCircle else Icons.Default.EditNote,
@@ -106,24 +108,6 @@ fun Chatroom(
                                 text = chatUiState.message?:"",
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(10.dp)
-                            )
-                        }
-                    }
-
-                    TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-                        tooltip = {
-                            PlainTooltip { Text("Save changes", style = MaterialTheme.typography.bodyMedium) }
-                        },
-                        state = rememberTooltipState()
-                    ){
-                        IconButton(
-                            onClick = { chatViewModel.updateSaveChatroom() },
-                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
-                        ){
-                            Icon(
-                                imageVector = Icons.Outlined.Save,
-                                contentDescription = "Save or update this chatroom"
                             )
                         }
                     }

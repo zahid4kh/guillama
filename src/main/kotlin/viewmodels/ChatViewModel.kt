@@ -124,23 +124,16 @@ class ChatViewModel(
         return json.decodeFromString<Chatroom>(jsonFileContent)
     }
 
-    fun updateSaveChatroom(){
-        viewModelScope.launch(Dispatchers.IO) {
-            val chatroom = _chatUiState.value.loadedChatroom
-            val file = _chatUiState.value.loadedChatroomFile
-
-            if (chatroom != null && file != null) {
-                val updated = chatroom.copy(
-                    title = _chatUiState.value.chatRoomTitle,
-                    modelInThisChatroom = _chatUiState.value.selectedModel
-                )
-                file.writeText(json.encodeToString(updated))
-                showMessage("Chatroom updated!")
-
-                viewModelScope.launch(Dispatchers.Main) {
-                    loadMessages()
-                }
-            }
+    private fun saveChatroomToFile() {
+        val chatroom = _chatUiState.value.loadedChatroom
+        val file = _chatUiState.value.loadedChatroomFile
+        if (chatroom != null && file != null) {
+            val updated = chatroom.copy(
+                title = _chatUiState.value.chatRoomTitle,
+                modelInThisChatroom = _chatUiState.value.selectedModel
+            )
+            file.writeText(json.encodeToString(updated))
+            _chatUiState.update { it.copy(loadedChatroom = updated) }
         }
     }
 
@@ -330,6 +323,10 @@ class ChatViewModel(
     fun onSelectModel(modelName: String){
         _chatUiState.update { it.copy(selectedModel = modelName) }
         closeDropdown()
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(400)
+            saveChatroomToFile()
+        }
     }
 
     fun expandDropdown(){
@@ -344,12 +341,15 @@ class ChatViewModel(
         _chatUiState.update { it.copy(userMessage = text) }
     }
 
-    fun handleEditSaveTitle(){
-        _chatUiState.update {
-            it.copy(
-                isEditingTitle = !it.isEditingTitle,
-                chatRoomTitle = _chatUiState.value.chatRoomTitle
-            )
+    fun toggleEditTitle() {
+        _chatUiState.update { it.copy(isEditingTitle = true) }
+    }
+
+    fun confirmTitle() {
+        _chatUiState.update { it.copy(isEditingTitle = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(400)
+            saveChatroomToFile()
         }
     }
 
