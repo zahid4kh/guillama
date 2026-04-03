@@ -68,6 +68,23 @@ This will create a platform-specific installer in the `build/compose/binaries/ma
 - `./gradlew packageDeb` - Build Linux DEB (Linux only)
 
 
+## License
+
+Copyright 2026 Zahid
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+---
 ## Generated with Compose for Desktop Wizard
 
 This project was generated using the [Desktop Client of Compose for Desktop Wizard](https://github.com/zahid4kh/compose-for-desktop/tree/desktop).
