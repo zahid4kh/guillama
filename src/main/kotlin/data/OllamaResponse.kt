@@ -86,3 +86,11 @@ data class OllamaModel(
 data class ModelsResponse(
     val models: List<OllamaModel> = emptyList()
 )
+
+@Serializable
+data class PullProgress(
+    val status: String = "",
+    val digest: String = "",
+    val total: Long = 0,
+    val completed: Long = 0
+)

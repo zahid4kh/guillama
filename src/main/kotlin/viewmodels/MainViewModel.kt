@@ -7,7 +7,9 @@ import data.Chatroom
 import data.Database
 import data.ModelsResponse
 import data.OllamaModel
+import data.PullProgress
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -155,6 +157,73 @@ class MainViewModel(
         }
     }
 
+    fun requestDeleteModel(modelName: String) {
+        _uiState.update { it.copy(modelToDelete = modelName) }
+    }
+
+    fun dismissDeleteModel() {
+        _uiState.update { it.copy(modelToDelete = null) }
+    }
+
+    fun confirmDeleteModel() {
+        val modelName = _uiState.value.modelToDelete ?: return
+        _uiState.update { it.copy(modelToDelete = null) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val success = ollamaApi.deleteModel(modelName)
+            if (success) {
+                fetchAndCacheModels()
+                showModelMessage("\"$modelName\" deleted", success = true)
+            } else {
+                showModelMessage("Failed to delete \"$modelName\"", success = false)
+            }
+        }
+    }
+
+    fun showPullDialog() {
+        _uiState.update { it.copy(pullDialogShown = true, pullModelName = "", pullProgress = null) }
+    }
+
+    fun closePullDialog() {
+        _uiState.update { it.copy(pullDialogShown = false, isPulling = false, pullProgress = null) }
+    }
+
+    fun onPullModelNameChanged(name: String) {
+        _uiState.update { it.copy(pullModelName = name) }
+    }
+
+    fun pullModel() {
+        val modelName = _uiState.value.pullModelName.trim()
+        if (modelName.isEmpty()) return
+        _uiState.update { it.copy(isPulling = true, pullProgress = null) }
+        viewModelScope.launch(Dispatchers.IO) {
+            ollamaApi.pullModel(
+                modelName = modelName,
+                onProgress = { progress ->
+                    _uiState.update { it.copy(pullProgress = progress) }
+                },
+                onComplete = {
+                    _uiState.update { it.copy(isPulling = false) }
+                    fetchAndCacheModels()
+                    viewModelScope.launch(Dispatchers.IO) {
+                        showModelMessage("\"$modelName\" pulled successfully", success = true)
+                    }
+                },
+                onError = { e ->
+                    _uiState.update { it.copy(isPulling = false) }
+                    viewModelScope.launch(Dispatchers.IO) {
+                        showModelMessage("Failed to pull \"$modelName\": ${e.message ?: "Unknown error"}", success = false)
+                    }
+                }
+            )
+        }
+    }
+
+    private suspend fun showModelMessage(message: String, success: Boolean) {
+        _uiState.update { it.copy(modelOperationMessage = message, modelOperationSuccess = success) }
+        delay(3000)
+        _uiState.update { it.copy(modelOperationMessage = "") }
+    }
+
     fun deleteChatroom(pair: Pair<Chatroom, File>){
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -193,6 +262,13 @@ class MainViewModel(
         val modelListDialogShown: Boolean = false,
         val drawerShown: Boolean = false,
         val listOfChatroomsWithFiles: List<Pair<Chatroom, File>> = emptyList(),
-        val selectedChatroom: Chatroom? = null
+        val selectedChatroom: Chatroom? = null,
+        val modelToDelete: String? = null,
+        val pullDialogShown: Boolean = false,
+        val pullModelName: String = "",
+        val isPulling: Boolean = false,
+        val pullProgress: PullProgress? = null,
+        val modelOperationMessage: String = "",
+        val modelOperationSuccess: Boolean = true
     )
 }

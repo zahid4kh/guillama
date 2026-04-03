@@ -13,12 +13,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Chat
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.ChatBubble
+import androidx.compose.material.icons.outlined.CloudDownload
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -170,6 +173,19 @@ fun EntryScreen(
             confirmButton = {
                 Row {
                     OutlinedButton(
+                        onClick = { mainViewModel.showPullDialog() },
+                        modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CloudDownload,
+                            contentDescription = "Pull model",
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = "Pull Model")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(
                         onClick = { mainViewModel.refreshModels() },
                         modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
                     ) {
@@ -200,43 +216,194 @@ fun EntryScreen(
                 )
             },
             text = {
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 500.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.availableModels) { model ->
+                Column {
+                    AnimatedVisibility(visible = uiState.modelOperationMessage.isNotEmpty()) {
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = if (uiState.modelOperationSuccess)
+                                    Color.Green.copy(alpha = 0.2f)
+                                else
+                                    MaterialTheme.colorScheme.errorContainer
                             )
                         ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
+                            Text(
+                                text = uiState.modelOperationMessage,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(10.dp)
+                            )
+                        }
+                    }
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 500.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.availableModels) { model ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
                             ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = model.name,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "Size: ${formatBytes(model.size)}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontFamily = getJetbrainsMonoFamily()
+                                        )
+                                        Text(
+                                            text = "Family: ${model.details.family}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontFamily = getJetbrainsMonoFamily()
+                                        )
+                                        Text(
+                                            text = "Parameters: ${model.details.parameterSize}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontFamily = getJetbrainsMonoFamily()
+                                        )
+                                    }
+                                    TooltipBox(
+                                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
+                                        tooltip = { PlainTooltip { Text("Delete model") } },
+                                        state = rememberTooltipState()
+                                    ) {
+                                        IconButton(
+                                            onClick = { mainViewModel.requestDeleteModel(model.name) },
+                                            modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Delete,
+                                                contentDescription = "Delete ${model.name}",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
+
+    if (uiState.modelToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { mainViewModel.dismissDeleteModel() },
+            title = { Text("Delete Model?") },
+            text = {
+                Text("Are you sure you want to delete \"${uiState.modelToDelete}\"? This will remove the model and all its data from disk.")
+            },
+            confirmButton = {
+                Button(
+                    onClick = { mainViewModel.confirmDeleteModel() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { mainViewModel.dismissDeleteModel() },
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (uiState.pullDialogShown) {
+        AlertDialog(
+            onDismissRequest = { if (!uiState.isPulling) mainViewModel.closePullDialog() },
+            title = { Text("Pull a Model") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Enter a model name from the Ollama library (e.g. llama3.2, mistral, gemma3).",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedTextField(
+                        value = uiState.pullModelName,
+                        onValueChange = { mainViewModel.onPullModelNameChanged(it) },
+                        label = { Text("Model name") },
+                        singleLine = true,
+                        enabled = !uiState.isPulling,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    AnimatedVisibility(visible = uiState.isPulling || uiState.pullProgress != null) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            val progress = uiState.pullProgress
+                            if (progress != null) {
                                 Text(
-                                    text = model.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Size: ${formatBytes(model.size)}",
+                                    text = progress.status,
                                     style = MaterialTheme.typography.bodySmall,
                                     fontFamily = getJetbrainsMonoFamily()
                                 )
+                                if (uiState.isPulling) {
+                                    if (progress.total > 0L) {
+                                        val fraction = (progress.completed.toFloat() / progress.total.toFloat()).coerceIn(0f, 1f)
+                                        LinearProgressIndicator(
+                                            progress = { fraction },
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        Text(
+                                            text = "${formatBytes(progress.completed)} / ${formatBytes(progress.total)}  (${(fraction * 100).toInt()}%)",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontFamily = getJetbrainsMonoFamily()
+                                        )
+                                    } else {
+                                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                    }
+                                }
+                            } else if (uiState.isPulling) {
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                                 Text(
-                                    text = "Family: ${model.details.family}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
-                                )
-                                Text(
-                                    text = "Parameters: ${model.details.parameterSize}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = getJetbrainsMonoFamily()
+                                    text = "Connecting...",
+                                    style = MaterialTheme.typography.bodySmall
                                 )
                             }
                         }
                     }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { mainViewModel.pullModel() },
+                    enabled = !uiState.isPulling && uiState.pullModelName.isNotBlank(),
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.CloudDownload,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(if (uiState.isPulling) "Pulling..." else "Pull")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { mainViewModel.closePullDialog() },
+                    enabled = !uiState.isPulling,
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand)
+                ) {
+                    Text("Close")
                 }
             }
         )
